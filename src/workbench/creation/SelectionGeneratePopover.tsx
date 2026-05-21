@@ -9,6 +9,7 @@ import {
   IconVideo,
 } from '@tabler/icons-react'
 import { WorkbenchIconButton } from '../../design'
+import { cn } from '../../utils/cn'
 import { createNodeFromSelection, type SelectionGenerationKind } from './createNodeFromSelection'
 import { useGenerationCanvasStore } from '../generationCanvasV2/store/generationCanvasStore'
 import { useWorkbenchStore } from '../workbenchStore'
@@ -138,17 +139,40 @@ export default function SelectionGeneratePopover({ editor, selectedText, onCreat
   return (
     <div
       ref={rootRef}
-      className="workbench-selection-popover"
+      className={cn(
+        'workbench-selection-popover',
+        'absolute z-20 inline-flex items-center',
+        'w-[210px] h-[40px] gap-[5px] p-1 pr-[5px]',
+        'border border-workbench-border rounded-lg',
+        'bg-workbench-overlay shadow-workbench-pop',
+        'backdrop-blur-[18px] backdrop-saturate-[1.06]',
+        'origin-[50%_100%]',
+      )}
       role="toolbar"
       aria-label="选中文本工具"
       data-placement={position.placement}
       style={{ left: position.left, top: position.top }}
     >
-      <div className="workbench-selection-popover__format-group" aria-label="常用格式">
+      <div
+        className={cn(
+          'workbench-selection-popover__format-group',
+          'inline-flex items-center gap-[3px] shrink-0',
+        )}
+        aria-label="常用格式"
+      >
         {formatActions.map((action) => (
           <WorkbenchIconButton
             key={action.id}
-            className="workbench-selection-popover__tool"
+            className={cn(
+              'workbench-selection-popover__tool',
+              'h-[30px] w-[28px] inline-flex items-center justify-center',
+              'border border-transparent rounded-workbench-control',
+              'bg-transparent text-workbench-muted',
+              'cursor-pointer',
+              'hover:border-[color-mix(in_srgb,var(--workbench-accent)_14%,transparent)]',
+              'hover:bg-workbench-accent-soft hover:text-workbench-accent',
+              'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+            )}
             label={action.label}
             data-active={action.active ? 'true' : 'false'}
             onMouseDown={(event) => event.preventDefault()}
@@ -157,17 +181,46 @@ export default function SelectionGeneratePopover({ editor, selectedText, onCreat
           />
         ))}
       </div>
-      <div className="workbench-selection-popover__divider" />
-      <div className="workbench-selection-popover__generate-group" aria-label="生成">
+      <div
+        className={cn(
+          'workbench-selection-popover__divider',
+          'self-stretch w-px mx-[2px] my-[3px] bg-workbench-border-soft',
+        )}
+      />
+      <div
+        className={cn(
+          'workbench-selection-popover__generate-group',
+          'inline-flex items-center gap-[3px] shrink-0',
+        )}
+        aria-label="生成"
+      >
         <WorkbenchIconButton
-          className="workbench-selection-popover__tool workbench-selection-popover__tool--generate"
+          className={cn(
+            'workbench-selection-popover__tool workbench-selection-popover__tool--generate',
+            'h-[30px] w-[30px] inline-flex items-center justify-center',
+            'border border-workbench-border-soft rounded-workbench-control',
+            'bg-workbench-surface text-workbench-ink',
+            'cursor-pointer',
+            'hover:border-[color-mix(in_srgb,var(--workbench-accent)_18%,transparent)]',
+            'hover:bg-workbench-accent-soft hover:text-workbench-accent',
+            'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+          )}
           label="生成图片"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => handleCreate('image')}
           icon={<IconPhoto size={14} />}
         />
         <WorkbenchIconButton
-          className="workbench-selection-popover__tool workbench-selection-popover__tool--generate"
+          className={cn(
+            'workbench-selection-popover__tool workbench-selection-popover__tool--generate',
+            'h-[30px] w-[30px] inline-flex items-center justify-center',
+            'border border-workbench-border-soft rounded-workbench-control',
+            'bg-workbench-surface text-workbench-ink',
+            'cursor-pointer',
+            'hover:border-[color-mix(in_srgb,var(--workbench-accent)_18%,transparent)]',
+            'hover:bg-workbench-accent-soft hover:text-workbench-accent',
+            'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+          )}
           label="生成视频"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => handleCreate('video')}

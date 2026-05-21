@@ -16,6 +16,7 @@ import {
   type TextInputProps,
   type TextareaProps,
 } from '@mantine/core'
+import { cn } from '../utils/cn'
 
 export type DesignCheckboxProps = CheckboxProps
 export type DesignFileInputProps = FileInputProps
@@ -27,37 +28,61 @@ export type DesignSegmentedControlProps = SegmentedControlProps
 export type DesignSwitchProps = SwitchProps
 
 export function DesignCheckbox({ className, radius = 'sm', ...props }: DesignCheckboxProps): JSX.Element {
-  const rootClassName = className ? `tc-design-checkbox ${className}` : 'tc-design-checkbox'
+  const rootClassName = cn(
+    'tc-design-checkbox',
+    'text-[13px]',
+    className,
+  )
 
   return <Checkbox {...props} className={rootClassName} radius={radius} />
 }
 
 export function DesignFileInput({ className, radius = 'sm', ...props }: DesignFileInputProps): JSX.Element {
-  const rootClassName = className ? `tc-design-file-input ${className}` : 'tc-design-file-input'
+  const rootClassName = cn(
+    'tc-design-file-input',
+    'text-[13px]',
+    className,
+  )
 
   return <FileInput {...props} className={rootClassName} radius={radius} />
 }
 
 export function DesignTextInput({ className, radius = 'sm', ...props }: DesignTextInputProps): JSX.Element {
-  const rootClassName = className ? `tc-design-text-input ${className}` : 'tc-design-text-input'
+  const rootClassName = cn(
+    'tc-design-text-input',
+    'text-[13px]',
+    className,
+  )
 
   return <TextInput {...props} className={rootClassName} radius={radius} />
 }
 
 export function DesignTextarea({ className, radius = 'sm', autosize = true, ...props }: DesignTextareaProps): JSX.Element {
-  const rootClassName = className ? `tc-design-textarea ${className}` : 'tc-design-textarea'
+  const rootClassName = cn(
+    'tc-design-textarea',
+    'text-[13px]',
+    className,
+  )
 
   return <Textarea {...props} autosize={autosize} className={rootClassName} radius={radius} />
 }
 
 export function DesignSelect({ className, radius = 'sm', ...props }: DesignSelectProps): JSX.Element {
-  const rootClassName = className ? `tc-design-select ${className}` : 'tc-design-select'
+  const rootClassName = cn(
+    'tc-design-select',
+    'text-[13px]',
+    className,
+  )
 
   return <Select {...props} className={rootClassName} radius={radius} />
 }
 
 export function DesignNumberInput({ className, radius = 'sm', ...props }: DesignNumberInputProps): JSX.Element {
-  const rootClassName = className ? `tc-design-number-input ${className}` : 'tc-design-number-input'
+  const rootClassName = cn(
+    'tc-design-number-input',
+    'text-[13px]',
+    className,
+  )
 
   return <NumberInput {...props} className={rootClassName} radius={radius} />
 }
@@ -67,13 +92,21 @@ export function DesignSegmentedControl({
   radius = 'sm',
   ...props
 }: DesignSegmentedControlProps): JSX.Element {
-  const rootClassName = className ? `tc-design-segmented-control ${className}` : 'tc-design-segmented-control'
+  const rootClassName = cn(
+    'tc-design-segmented-control',
+    'text-[13px]',
+    className,
+  )
 
   return <SegmentedControl {...props} className={rootClassName} radius={radius} />
 }
 
 export function DesignSwitch({ className, ...props }: DesignSwitchProps): JSX.Element {
-  const rootClassName = className ? `tc-design-switch ${className}` : 'tc-design-switch'
+  const rootClassName = cn(
+    'tc-design-switch',
+    'text-[13px]',
+    className,
+  )
 
   return <Switch {...props} className={rootClassName} />
 }

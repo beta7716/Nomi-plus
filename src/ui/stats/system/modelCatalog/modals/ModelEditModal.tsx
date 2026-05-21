@@ -15,6 +15,7 @@ import {
   DesignTextarea,
   IconActionButton,
 } from '../../../../../design'
+import { cn } from '../../../../../utils/cn'
 
 export type ModelEditorState =
   | { mode: 'create' }
@@ -239,7 +240,7 @@ export function ModelEditModal({
 
   return (
     <DesignModal
-      className="stats-model-catalog-model-modal"
+      className={cn('stats-model-catalog-model-modal')}
       opened={opened}
       onClose={onClose}
       title={mode === 'edit' ? '编辑模型' : mode === 'duplicate' ? '复制模型' : '新增模型'}
@@ -248,9 +249,8 @@ export function ModelEditModal({
       centered
       lockScroll={false}
     >
-      <Stack className="stats-model-catalog-model-form" gap="sm">
+      <Stack className={cn('stats-model-catalog-model-form')} gap="sm">
         <DesignSelect
-          className="stats-model-catalog-model-form-vendor"
           label="所属平台"
           data={vendorOptions}
           value={vendorKey}
@@ -259,7 +259,6 @@ export function ModelEditModal({
           disabled={!isNew}
         />
         <DesignTextInput
-          className="stats-model-catalog-model-form-key"
           label="唯一标识"
           placeholder="例如 gpt-4.1 / nano-banana-pro"
           value={modelKey}
@@ -267,21 +266,18 @@ export function ModelEditModal({
           disabled={!isNew}
         />
         <DesignSelect
-          className="stats-model-catalog-model-form-kind"
           label="模型类型"
           data={KIND_OPTIONS}
           value={kind}
           onChange={(value) => setKind(parseBillingModelKind(value))}
         />
         <DesignTextInput
-          className="stats-model-catalog-model-form-label"
           label="模型名称"
           placeholder="例如 GPT-4.1 / Gemini 3.1 Flash Image"
           value={labelZh}
           onChange={(event) => setLabelZh(event.currentTarget.value)}
         />
         <DesignTextInput
-          className="stats-model-catalog-model-form-alias"
           label="Public 别名"
           placeholder="留空则自动使用模型 Key"
           value={modelAlias}
@@ -291,9 +287,8 @@ export function ModelEditModal({
           }}
         />
 
-        <Group className="stats-model-catalog-model-form-pricing-row" grow align="flex-end">
+        <Group className={cn('stats-model-catalog-model-form-pricing-row')} grow align="flex-end">
           <DesignNumberInput
-            className="stats-model-catalog-model-form-pricing-cost"
             label="成本权重"
             min={0}
             step={1}
@@ -302,7 +297,6 @@ export function ModelEditModal({
             onChange={(value) => setPricingCost(typeof value === 'number' ? value : '')}
           />
           <DesignSwitch
-            className="stats-model-catalog-model-form-pricing-enabled"
             checked={pricingEnabled}
             onChange={(event) => setPricingEnabled(event.currentTarget.checked)}
             label="成本权重启用"
@@ -310,28 +304,26 @@ export function ModelEditModal({
           />
         </Group>
 
-        <Stack className="stats-model-catalog-model-form-pricing-specs" gap={8}>
-          <Group className="stats-model-catalog-model-form-pricing-specs-header" justify="space-between" align="center">
-            <Text className="stats-model-catalog-model-form-pricing-specs-title" size="sm" fw={600}>规格成本权重</Text>
+        <Stack className={cn('stats-model-catalog-model-form-pricing-specs')} gap={8}>
+          <Group className={cn('stats-model-catalog-model-form-pricing-specs-header justify-between items-center')} justify="space-between" align="center">
+            <Text size="sm" fw={600}>规格成本权重</Text>
             <DesignButton
-              className="stats-model-catalog-model-form-pricing-specs-add"
               size="xs"
               variant="light"
-              leftSection={<IconPlus className="stats-model-catalog-model-form-pricing-specs-add-icon" size={14} />}
+              leftSection={<IconPlus size={14} />}
               onClick={() => setPricingSpecs((current) => [...current, nextPricingSpecRow()])}
             >
               添加规格
             </DesignButton>
           </Group>
           {!pricingSpecs.length ? (
-            <Text className="stats-model-catalog-model-form-pricing-specs-empty" size="xs" c="dimmed">
+            <Text size="xs" c="dimmed">
               不填则直接使用上面的基础成本权重。可用于 `orientation:landscape`、`duration:10s`、`quality:pro` 这类不同规格。
             </Text>
           ) : (
             pricingSpecs.map((spec) => (
-              <Group className="stats-model-catalog-model-form-pricing-spec-row" key={spec.id} align="flex-end" wrap="nowrap">
+              <Group className={cn('stats-model-catalog-model-form-pricing-spec-row flex-nowrap items-end')} key={spec.id} align="flex-end" wrap="nowrap">
                 <DesignTextInput
-                  className="stats-model-catalog-model-form-pricing-spec-key"
                   label="specKey"
                   placeholder="例如 duration:10s"
                   value={spec.specKey}
@@ -342,7 +334,6 @@ export function ModelEditModal({
                   style={{ flex: 1 }}
                 />
                 <DesignNumberInput
-                  className="stats-model-catalog-model-form-pricing-spec-cost"
                   label="成本"
                   min={0}
                   step={1}
@@ -355,7 +346,6 @@ export function ModelEditModal({
                   style={{ width: 128 }}
                 />
                 <DesignSwitch
-                  className="stats-model-catalog-model-form-pricing-spec-enabled"
                   checked={spec.enabled}
                   onChange={(event) => {
                     const nextValue = event.currentTarget.checked
@@ -365,35 +355,34 @@ export function ModelEditModal({
                   mb={6}
                 />
                 <IconActionButton
-                  className="stats-model-catalog-model-form-pricing-spec-delete"
                   size="lg"
                   variant="light"
                   color="red"
                   aria-label="删除规格成本"
                   mb={4}
                   onClick={() => setPricingSpecs((current) => current.filter((item) => item.id !== spec.id))}
-                  icon={<IconTrash className="stats-model-catalog-model-form-pricing-spec-delete-icon" size={16} />}
+                  icon={<IconTrash size={16} />}
                 />
               </Group>
             ))
           )}
         </Stack>
 
-        <DesignTextarea className="stats-model-catalog-model-form-meta" label="描述 / meta（JSON，可选）" value={meta} onChange={(event) => setMeta(event.currentTarget.value)} minRows={4} autosize />
-        <Text className="stats-model-catalog-model-form-meta-hint" size="xs" c="dimmed">
+        <DesignTextarea label="描述 / meta（JSON，可选）" value={meta} onChange={(event) => setMeta(event.currentTarget.value)} minRows={4} autosize />
+        <Text size="xs" c="dimmed">
           视频模型可在 `meta.videoOptions.controls` 或 `meta.videoOptions.controlMappings` 中声明节点控制栏映射。
           例如：`controls: [&#123; key: "duration", binding: "durationSeconds" &#125;, &#123; key: "size", binding: "size" &#125;]`。
         </Text>
-        <DesignSwitch className="stats-model-catalog-model-form-enabled" checked={enabled} onChange={(event) => setEnabled(event.currentTarget.checked)} label="模型启用" />
+        <DesignSwitch checked={enabled} onChange={(event) => setEnabled(event.currentTarget.checked)} label="模型启用" />
 
-        <Divider className="stats-model-catalog-model-form-divider" label="保存说明" labelPosition="left" />
-        <Text className="stats-model-catalog-model-form-hint" size="xs" c="dimmed">
+        <Divider className={cn('stats-model-catalog-model-form-divider')} label="保存说明" labelPosition="left" />
+        <Text size="xs" c="dimmed">
           成本权重仅作为模型目录元数据保存，用于后续观察与调度参考，不连接充值、团队额度或扣费系统。
         </Text>
 
-        <Group className="stats-model-catalog-model-form-actions" justify="flex-end" gap={8}>
-          <DesignButton className="stats-model-catalog-model-form-cancel" variant="subtle" onClick={onClose}>取消</DesignButton>
-          <DesignButton className="stats-model-catalog-model-form-save" onClick={() => void submitModel()} loading={submitting}>
+        <Group className={cn('stats-model-catalog-model-form-actions justify-end gap-2')} justify="flex-end" gap={8}>
+          <DesignButton variant="subtle" onClick={onClose}>取消</DesignButton>
+          <DesignButton onClick={() => void submitModel()} loading={submitting}>
             保存
           </DesignButton>
         </Group>

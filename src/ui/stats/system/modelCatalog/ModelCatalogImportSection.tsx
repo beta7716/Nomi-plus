@@ -3,6 +3,7 @@ import { Group, Stack, Text } from '@mantine/core'
 import { IconCheck, IconPlayerPlay, IconPlus, IconSend2 } from '@tabler/icons-react'
 import { agentsChatStream, type AgentsChatResponseDto } from '../../../../api/server'
 import { DesignAlert, DesignButton, DesignCheckbox, DesignTextarea, NomiAILabel, NomiLoadingMark, WorkbenchIconButton } from '../../../../design'
+import { cn } from '../../../../utils/cn'
 import { AiReplyActionButton } from '../../../../workbench/ai/AiReplyActionButton'
 import { handleAiComposerKeyDown } from '../../../../workbench/ai/aiComposerKeyboard'
 import type {
@@ -506,36 +507,36 @@ export function ModelCatalogImportSection({
   }, [draft, importSubmitting, onImportPackage, runRealTest, setImportText])
 
   return (
-    <aside className="stats-model-catalog-agent" aria-label="模型接入 Agent">
-      <header className="stats-model-catalog-agent__header">
-        <div className="stats-model-catalog-agent__title">
+    <aside className={cn('stats-model-catalog-agent grid grid-rows-[auto_minmax(0,1fr)_auto] min-h-[520px] min-w-0 text-nomi-ink bg-nomi-paper')} aria-label="模型接入 Agent">
+      <header className={cn('stats-model-catalog-agent__header flex items-center justify-between gap-2.5 min-h-[53px] px-4 py-3.5 border-b border-nomi-line-soft bg-nomi-paper')}>
+        <div className={cn('stats-model-catalog-agent__title')}>
           <NomiAILabel suffix="模型接入" />
         </div>
         <WorkbenchIconButton
-          className="stats-model-catalog-agent__reset"
+          className={cn('stats-model-catalog-agent__reset')}
           label="新对话"
           onClick={resetConversation}
           icon={<IconPlus size={14} />}
         />
       </header>
 
-      <div className="stats-model-catalog-agent__messages" aria-live="polite">
+      <div className={cn('stats-model-catalog-agent__messages')} aria-live="polite">
         {messages.length === 0 ? (
-          <div className="stats-model-catalog-agent__empty">
-            <div className="stats-model-catalog-agent__empty-title">直接对话接入模型</div>
-            <div className="stats-model-catalog-agent__empty-sub">把平台名、文档链接、curl 或 OpenAPI 发给 Nomi。它只生成草案，确认后才写入。</div>
+          <div className={cn('stats-model-catalog-agent__empty')}>
+            <div className={cn('stats-model-catalog-agent__empty-title')}>直接对话接入模型</div>
+            <div className={cn('stats-model-catalog-agent__empty-sub')}>把平台名、文档链接、curl 或 OpenAPI 发给 Nomi。它只生成草案，确认后才写入。</div>
           </div>
         ) : messages.map((item) => (
-          <article key={item.id} className={`stats-model-catalog-agent__message stats-model-catalog-agent__message--${item.role}`}>
-            <div className="stats-model-catalog-agent__message-content">
+          <article key={item.id} className={cn('stats-model-catalog-agent__message', `stats-model-catalog-agent__message--${item.role}`)}>
+            <div className={cn('stats-model-catalog-agent__message-content')}>
               {item.role === 'assistant' && item.content === '处理中...' ? (
                 <NomiLoadingMark size={14} label="处理中" />
               ) : (
-                <Text className="stats-model-catalog-agent__message-text" size="xs">{item.content}</Text>
+                <Text className={cn('stats-model-catalog-agent__message-text')} size="xs">{item.content}</Text>
               )}
               {item.role === 'assistant' && item.content !== '处理中...' && !item.content.startsWith('（错误）') ? (
                 <AiReplyActionButton
-                  className="stats-model-catalog-agent__reply-action"
+                  className={cn('stats-model-catalog-agent__reply-action')}
                   content={item.content}
                 />
               ) : null}
@@ -544,11 +545,11 @@ export function ModelCatalogImportSection({
         ))}
 
         {messages.length === 0 && stage !== 'idle' ? (
-          <article className="stats-model-catalog-agent__message stats-model-catalog-agent__message--assistant">
-            <div className="stats-model-catalog-agent__message-content" data-stage={stage}>
-              <Text className="stats-model-catalog-agent__message-text" size="xs">{message}</Text>
+          <article className={cn('stats-model-catalog-agent__message stats-model-catalog-agent__message--assistant')}>
+            <div className={cn('stats-model-catalog-agent__message-content')} data-stage={stage}>
+              <Text className={cn('stats-model-catalog-agent__message-text')} size="xs">{message}</Text>
               <AiReplyActionButton
-                className="stats-model-catalog-agent__reply-action"
+                className={cn('stats-model-catalog-agent__reply-action')}
                 content={message}
               />
             </div>
@@ -556,38 +557,37 @@ export function ModelCatalogImportSection({
         ) : null}
 
         {error ? (
-          <DesignAlert className="stats-model-catalog-agent__error" color="red" variant="light" role="alert">
-            <Text className="stats-model-catalog-agent__error-text" size="xs">{error}</Text>
+          <DesignAlert className={cn('stats-model-catalog-agent__error')} color="red" variant="light" role="alert">
+            <Text size="xs">{error}</Text>
           </DesignAlert>
         ) : null}
 
           {draft ? (
-            <Stack className="stats-model-catalog-agent__draft" gap="xs" aria-label="模型接入草案">
-              <Group className="stats-model-catalog-agent__draft-summary" justify="space-between" gap="xs" wrap="wrap">
-                <Text className="stats-model-catalog-agent__draft-title" size="xs" fw={700}>{summarizeDraft(draft.package)}</Text>
-                <Text className="stats-model-catalog-agent__draft-vendors" size="xs" c="dimmed">
+            <Stack className={cn('stats-model-catalog-agent__draft')} gap="xs" aria-label="模型接入草案">
+              <Group className={cn('stats-model-catalog-agent__draft-summary')} justify="space-between" gap="xs" wrap="wrap">
+                <Text className={cn('stats-model-catalog-agent__draft-title')} size="xs" fw={700}>{summarizeDraft(draft.package)}</Text>
+                <Text className={cn('stats-model-catalog-agent__draft-vendors')} size="xs" c="dimmed">
                   {draft.package.vendors.map((bundle) => `${bundle.vendor.name}（${bundle.vendor.key}）`).join(' / ')}
                 </Text>
               </Group>
               {draft.missing.length ? (
-                <DesignAlert className="stats-model-catalog-agent__missing" color="yellow" variant="light">
-                  <Text className="stats-model-catalog-agent__missing-text" size="xs">
+                <DesignAlert className={cn('stats-model-catalog-agent__missing')} color="yellow" variant="light">
+                  <Text size="xs">
                     仍需确认：{draft.missing.join(' / ')}
                   </Text>
                 </DesignAlert>
               ) : null}
-              <Group className="stats-model-catalog-agent__draft-actions" gap="xs" justify="space-between" wrap="wrap">
+              <Group className={cn('stats-model-catalog-agent__draft-actions')} gap="xs" justify="space-between" wrap="wrap">
                 <DesignCheckbox
-                  className="stats-model-catalog-agent__real-test"
                   checked={runRealTest}
                   onChange={(event) => setRunRealTest(event.currentTarget.checked)}
                   label="确认后真实测试"
                   size="xs"
                 />
                 <DesignButton
-                  className="stats-model-catalog-agent__confirm-action"
+                  className={cn('stats-model-catalog-agent__confirm-action')}
                   size="xs"
-                  leftSection={runRealTest ? <IconPlayerPlay className="stats-model-catalog-agent__confirm-action-icon" size={14} /> : <IconCheck className="stats-model-catalog-agent__confirm-action-icon" size={14} />}
+                  leftSection={runRealTest ? <IconPlayerPlay size={14} /> : <IconCheck size={14} />}
                   onClick={() => void confirmImport()}
                   loading={importSubmitting}
                 >
@@ -600,17 +600,17 @@ export function ModelCatalogImportSection({
 
       {testResultText ? (
         <DesignAlert
-          className="stats-model-catalog-agent__test-result"
+          className={cn('stats-model-catalog-agent__test-result')}
           color={testResultText.includes('失败') ? 'red' : 'green'}
           variant="light"
         >
-          <Text className="stats-model-catalog-agent__test-result-text" size="xs">{testResultText}</Text>
+          <Text size="xs">{testResultText}</Text>
         </DesignAlert>
       ) : null}
 
-      <footer className="stats-model-catalog-agent__composer">
+      <footer className={cn('stats-model-catalog-agent__composer')}>
         <DesignTextarea
-          className="stats-model-catalog-agent__input"
+          className={cn('stats-model-catalog-agent__input')}
           value={draftText}
           onChange={(event) => setDraftText(event.currentTarget.value)}
           placeholder="例如：帮我接入 DeepSeek，文档是 https://api-docs.deepseek.com/，用于文本生成。"
@@ -618,9 +618,9 @@ export function ModelCatalogImportSection({
           autosize
           onKeyDown={(event) => handleAiComposerKeyDown(event, () => void askAgent())}
         />
-        <div className="stats-model-catalog-agent__actions">
+        <div className={cn('stats-model-catalog-agent__actions')}>
           <WorkbenchIconButton
-            className="stats-model-catalog-agent__send"
+            className={cn('stats-model-catalog-agent__send')}
             label="发送"
             aria-label="发送模型接入消息"
             disabled={runningAgent || !draftText.trim()}

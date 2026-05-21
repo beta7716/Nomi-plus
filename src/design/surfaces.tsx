@@ -1,5 +1,6 @@
 import { Paper, type PaperProps } from '@mantine/core'
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
+import { cn } from '../utils/cn'
 
 type PanelCardPadding = 'compact' | 'default' | 'comfortable'
 type InlinePanelPadding = 'compact' | 'default'
@@ -29,7 +30,12 @@ export const PanelCard = forwardRef<HTMLDivElement, PanelCardProps>(function Pan
   },
   ref,
 ) {
-  const rootClassName = className ? `tc-panel-card ${className}` : 'tc-panel-card'
+  const rootClassName = cn(
+    'tc-panel-card',
+    'rounded-panel border border-border-subtle bg-[linear-gradient(180deg,rgba(16,22,29,0.98),rgba(10,14,20,0.98))]',
+    'shadow-[0_18px_40px_rgba(0,0,0,0.28)]',
+    className,
+  )
 
   return (
     <Paper
@@ -61,7 +67,12 @@ export const InlinePanel = forwardRef<HTMLDivElement, InlinePanelProps>(function
   },
   ref,
 ) {
-  const rootClassName = className ? `tc-inline-panel ${className}` : 'tc-inline-panel'
+  const rootClassName = cn(
+    'tc-inline-panel',
+    'rounded-none bg-surface-inline border-0 shadow-none',
+    'data-[emphasis=strong]:bg-[rgba(96,165,250,0.08)]',
+    className,
+  )
 
   return (
     <Paper

@@ -2,6 +2,7 @@ import React from 'react'
 import { IconCursorText, IconFilePlus, IconReplace, IconSend2 } from '@tabler/icons-react'
 import { NomiAILabel, NomiLoadingMark, WorkbenchButton, WorkbenchIconButton } from '../../design'
 import ReactMarkdown from 'react-markdown'
+import { cn } from '../../utils/cn'
 import { sendWorkbenchAiMessage } from '../ai/workbenchAiClient'
 import { AiReplyActionButton } from '../ai/AiReplyActionButton'
 import { handleAiComposerKeyDown } from '../ai/aiComposerKeyboard'
@@ -172,22 +173,49 @@ export default function CreationAiPanel(): JSX.Element {
   }, [resetConversation])
 
   return (
-    <aside className="workbench-creation-ai" aria-label="AI 创作区">
-      <header className="workbench-creation-ai__header">
-        <div className="workbench-creation-ai__title">
+    <aside
+      className={cn(
+        'workbench-creation-ai',
+        'grid grid-rows-[44px_minmax(0,1fr)_auto_auto]',
+        '[grid-template-areas:"header"_"messages"_"error"_"composer"]',
+        'min-w-0 min-h-0 overflow-hidden',
+      )}
+      aria-label="AI 创作区"
+    >
+      <header
+        className={cn(
+          'workbench-creation-ai__header',
+          '[grid-area:header] flex items-center justify-between gap-[10px] min-w-0',
+        )}
+      >
+        <div className={cn('workbench-creation-ai__title', 'inline-flex items-center gap-2')}>
           <NomiAILabel suffix="创作" />
         </div>
         <WorkbenchAiHeaderActions
-          className="workbench-creation-ai__header-actions"
-          actionClassName="workbench-creation-ai__header-action"
+          className={cn(
+            'workbench-creation-ai__header-actions',
+            'inline-flex items-center flex-nowrap gap-[6px] ml-auto whitespace-nowrap',
+          )}
+          actionClassName={cn(
+            'workbench-creation-ai__header-action',
+            'inline-flex items-center justify-center shrink-0 cursor-pointer whitespace-nowrap',
+            'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+          )}
           onModelIntegration={openWorkbenchModelIntegration}
           onNewConversation={handleNewConversation}
         />
       </header>
 
-      <div ref={messagesScrollRef} className="workbench-creation-ai__messages" aria-live="polite">
+      <div
+        ref={messagesScrollRef}
+        className={cn(
+          'workbench-creation-ai__messages',
+          '[grid-area:messages] min-h-0 overflow-auto',
+        )}
+        aria-live="polite"
+      >
         {messages.length === 0 ? (
-          <div className="workbench-creation-ai__empty">
+          <div className={cn('workbench-creation-ai__empty', 'h-full grid place-content-center justify-items-center')}>
             <div className="workbench-creation-ai__empty-title">需要一点灵感？</div>
             <div className="workbench-creation-ai__empty-sub">告诉 AI 你想写什么，它会给你一个开头。</div>
             <div className="workbench-creation-ai__suggestions">
@@ -206,9 +234,13 @@ export default function CreationAiPanel(): JSX.Element {
           messages.map((message) => (
             <article
               key={message.id}
-              className={`workbench-creation-ai__message workbench-creation-ai__message--${message.role}`}
+              className={cn(
+                'workbench-creation-ai__message',
+                `workbench-creation-ai__message--${message.role}`,
+                'p-[10px_11px] whitespace-pre-wrap',
+              )}
             >
-              <div className="workbench-creation-ai__message-content workbench-creation-ai-markdown">
+              <div className={cn('workbench-creation-ai__message-content workbench-creation-ai-markdown', 'whitespace-normal')}>
                 {message.role === 'assistant' && message.content === '处理中...' ? (
                   <NomiLoadingMark size={15} label="处理中" />
                 ) : (
@@ -222,15 +254,15 @@ export default function CreationAiPanel(): JSX.Element {
                 ) : null}
               </div>
               {message.role === 'assistant' && message.content !== '处理中...' && !message.content.startsWith('（错误）') ? (
-                <div className="workbench-creation-ai__message-actions">
+                <div className={cn('workbench-creation-ai__message-actions', 'flex justify-stretch mt-[10px] pt-2')}>
                   {message.documentAction ? (
-                    <div className="workbench-creation-ai__tool-preview">
-                      <span className="workbench-creation-ai__tool-name">
+                    <div className={cn('workbench-creation-ai__tool-preview', 'w-full flex items-center justify-between gap-2')}>
+                      <span className={cn('workbench-creation-ai__tool-name', 'min-w-0 inline-flex items-center gap-[6px]')}>
                         {actionIcon(message.documentAction.type)}
                         {getCreationDocumentActionLabel(message.documentAction.type)}
                       </span>
                       <WorkbenchButton
-                        className="workbench-creation-ai__message-action"
+                        className={cn('workbench-creation-ai__message-action', 'inline-flex items-center gap-[5px] px-2 font-inherit cursor-pointer disabled:cursor-not-allowed disabled:opacity-45')}
                         disabled={!documentTools}
                         data-primary="true"
                         onClick={() => applyDocumentAction(message.documentAction!)}
@@ -246,21 +278,48 @@ export default function CreationAiPanel(): JSX.Element {
         )}
       </div>
 
-      {error ? <div className="workbench-creation-ai__error">{error}</div> : null}
+      {error ? (
+        <div
+          className={cn(
+            'workbench-creation-ai__error',
+            '[grid-area:error] py-2 px-3',
+            'border-t border-[color-mix(in_srgb,var(--workbench-danger)_16%,transparent)]',
+            'bg-workbench-danger-soft text-workbench-danger',
+            'text-xs leading-[1.45]',
+          )}
+        >
+          {error}
+        </div>
+      ) : null}
 
-      <footer className="workbench-creation-ai__composer">
+      <footer className={cn('workbench-creation-ai__composer', '[grid-area:composer]')}>
         <textarea
-          className="workbench-creation-ai__input"
+          className={cn(
+            'workbench-creation-ai__input',
+            'w-full min-h-[78px] resize-none',
+            'border-0 rounded-none bg-transparent',
+            'font-inherit outline-none',
+            'focus:shadow-none',
+          )}
           value={draft}
           placeholder="问点什么..."
           onChange={(event) => setDraft(event.currentTarget.value)}
           onKeyDown={(event) => handleAiComposerKeyDown(event, () => void send())}
         />
-        <div className="workbench-creation-ai__actions">
-          <label className="workbench-creation-ai__mode-picker" title={activeMode.description}>
-            <span className="workbench-creation-ai__mode-label">模式</span>
+        <div className={cn('workbench-creation-ai__actions', 'flex items-center justify-between gap-2')}>
+          <label
+            className={cn(
+              'workbench-creation-ai__mode-picker',
+              'min-w-0 h-[30px] inline-flex items-center gap-[6px] px-2 cursor-pointer',
+            )}
+            title={activeMode.description}
+          >
+            <span className={cn('workbench-creation-ai__mode-label', 'shrink-0 whitespace-nowrap')}>模式</span>
             <select
-              className="workbench-creation-ai__mode-select"
+              className={cn(
+                'workbench-creation-ai__mode-select',
+                'min-w-[70px] border-0 bg-transparent font-inherit outline-none cursor-pointer',
+              )}
               aria-label="创作模式"
               value={activeMode.id}
               onChange={(event) => setModeId(event.currentTarget.value as CreationAiModeId)}
@@ -273,7 +332,12 @@ export default function CreationAiPanel(): JSX.Element {
             </select>
           </label>
           <WorkbenchIconButton
-            className="workbench-creation-ai__send"
+            className={cn(
+              'workbench-creation-ai__send',
+              'shrink-0 w-[30px] inline-flex items-center justify-center cursor-pointer',
+              'disabled:cursor-not-allowed disabled:opacity-[0.48]',
+              'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+            )}
             label="发送"
             aria-label="创作 AI 发送"
             disabled={sending || !draft.trim()}

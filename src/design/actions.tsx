@@ -1,5 +1,6 @@
 import { ActionIcon, Button, type ActionIconProps, type ButtonProps } from '@mantine/core'
 import { forwardRef, type ButtonHTMLAttributes, type ComponentPropsWithoutRef, type ReactNode } from 'react'
+import { cn } from '../utils/cn'
 import { NomiLoadingMark } from './identity'
 
 export type IconActionButtonProps = Omit<ActionIconProps, 'children'> & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'color'> & {
@@ -14,7 +15,16 @@ export const IconActionButton = forwardRef<HTMLButtonElement, IconActionButtonPr
   variant = 'subtle',
   ...props
 }, ref): JSX.Element {
-  const rootClassName = className ? `tc-icon-action-button ${className}` : 'tc-icon-action-button'
+  const rootClassName = cn(
+    'tc-icon-action-button',
+    'inline-flex items-center justify-center',
+    'size-8 rounded-workbench-control',
+    'text-workbench-muted',
+    'transition-[background,color] duration-150 ease-out',
+    'hover:bg-workbench-hover hover:text-workbench-ink',
+    'disabled:opacity-40 disabled:cursor-not-allowed',
+    className,
+  )
   const isLoading = Boolean(loading)
 
   return (
@@ -45,7 +55,15 @@ export function DesignButton({
   variant = 'light',
   ...props
 }: DesignButtonProps): JSX.Element {
-  const rootClassName = className ? `tc-design-button ${className}` : 'tc-design-button'
+  const rootClassName = cn(
+    'tc-design-button',
+    'inline-flex items-center justify-center gap-1.5',
+    'h-8 px-3 rounded-nomi-sm',
+    'text-[13px] font-medium',
+    'transition-[background,color,border-color] duration-150 ease-out',
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+    className,
+  )
   const isLoading = Boolean(loading)
 
   return (
@@ -76,7 +94,18 @@ export function WorkbenchIconButton({
   type = 'button',
   ...props
 }: WorkbenchIconButtonProps): JSX.Element {
-  const rootClassName = className ? `tc-workbench-icon-button ${className}` : 'tc-workbench-icon-button'
+  const rootClassName = cn(
+    'tc-workbench-icon-button',
+    'inline-grid place-items-center',
+    'size-8 rounded-workbench-control border-0',
+    'bg-transparent text-workbench-muted',
+    'cursor-pointer',
+    'transition-[background,color] duration-150 ease-out',
+    'hover:bg-workbench-hover hover:text-workbench-ink',
+    'disabled:opacity-40 disabled:cursor-not-allowed',
+    '[&>svg]:size-4 [&>svg]:stroke-2',
+    className,
+  )
 
   return (
     <button
@@ -101,7 +130,20 @@ export function WorkbenchButton({
   type = 'button',
   ...props
 }: WorkbenchButtonProps): JSX.Element {
-  const rootClassName = className ? `tc-workbench-button ${className}` : 'tc-workbench-button'
+  const rootClassName = cn(
+    'tc-workbench-button',
+    'inline-flex items-center justify-center gap-1.5',
+    'h-8 px-3 rounded-workbench-control',
+    'border border-workbench-border-soft',
+    'bg-workbench-surface text-workbench-ink text-[13px] font-medium',
+    'cursor-pointer',
+    'transition-[background,border-color,color,box-shadow] duration-150 ease-out',
+    'hover:bg-workbench-hover',
+    'active:bg-workbench-pressed',
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+    '[&>svg]:size-4 [&>svg]:stroke-2',
+    className,
+  )
 
   return (
     <button

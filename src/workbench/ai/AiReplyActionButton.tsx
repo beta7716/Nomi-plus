@@ -1,6 +1,7 @@
 import React from 'react'
 import { IconCheck, IconClipboard } from '@tabler/icons-react'
 import { WorkbenchIconButton } from '../../design'
+import { cn } from '../../utils/cn'
 import { useWorkbenchStore } from '../workbenchStore'
 
 type AiReplyActionButtonProps = {
@@ -60,7 +61,7 @@ export function AiReplyActionButton({ className, content }: AiReplyActionButtonP
 
   return (
     <WorkbenchIconButton
-      className={`ai-reply-action ${className}`}
+      className={cn('ai-reply-action', className)}
       label={label}
       onClick={handleClick}
       icon={done ? <IconCheck size={13} /> : <IconClipboard size={13} />}

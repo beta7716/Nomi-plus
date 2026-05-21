@@ -1,6 +1,7 @@
 import React from 'react'
 import { Group, Text } from '@mantine/core'
 import { DesignPagination, DesignSelect } from '../../../../design'
+import { cn } from '../../../../utils/cn'
 import { PAGE_SIZE_OPTIONS } from './modelCatalog.constants'
 
 export function ModelCatalogTableFooter({
@@ -20,13 +21,12 @@ export function ModelCatalogTableFooter({
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   return (
-    <Group className="stats-model-catalog-table-footer" justify="space-between" align="center" mt="sm" gap="sm" wrap="wrap">
-      <Text className="stats-model-catalog-table-footer-summary" size="xs" c="dimmed">
+    <Group className={cn('stats-model-catalog-table-footer flex-wrap items-center justify-between gap-3 mt-3')} justify="space-between" align="center" mt="sm" gap="sm" wrap="wrap">
+      <Text size="xs" c="dimmed">
         共 {total} 条
       </Text>
-      <Group className="stats-model-catalog-table-footer-controls" gap="sm" align="center" wrap="wrap">
+      <Group className={cn('stats-model-catalog-table-footer-controls flex-wrap items-center gap-3')} gap="sm" align="center" wrap="wrap">
         <DesignSelect
-          className="stats-model-catalog-table-footer-page-size"
           value={String(pageSize)}
           data={PAGE_SIZE_OPTIONS}
           onChange={(value) => onChangePageSize(Number.parseInt(String(value || pageSize), 10))}
@@ -34,7 +34,6 @@ export function ModelCatalogTableFooter({
           w={100}
         />
         <DesignPagination
-          className="stats-model-catalog-table-footer-pagination"
           value={Math.min(page, totalPages)}
           onChange={onChangePage}
           total={totalPages}

@@ -11,6 +11,7 @@ import {
 } from '@tabler/icons-react'
 import { useWorkbenchStore } from '../workbenchStore'
 import { WorkbenchIconButton } from '../../design'
+import { cn } from '../../utils/cn'
 import { computeTimelineDuration } from './timelineMath'
 import TimelineTrack from './TimelineTrack'
 import { frameToPixel, pixelToFrame, TIMELINE_MIN_SCALE, TIMELINE_MAX_SCALE } from './timelineEdit'
@@ -137,30 +138,53 @@ export default function TimelinePanel({ density = 'compact', regionLabel, action
 
   return (
     <section
-      className="workbench-timeline"
+      className={cn(
+        'workbench-timeline',
+        'relative min-w-0 min-h-0 grid grid-rows-[minmax(0,1fr)]',
+        'bg-[var(--workbench-surface-solid)] border-t border-[var(--workbench-border)]',
+        'shadow-[0_-1px_0_rgba(255,255,255,0.72)]',
+        density === 'full' ? 'px-[18px] py-[10px] pb-[14px]' : 'px-4 pt-3 pb-3',
+      )}
       data-density={density}
       aria-label={regionLabel}
       style={{ '--workbench-timeline-content-width': `${rulerWidth}px` } as React.CSSProperties}
     >
-      <div className="workbench-timeline__controls">
-        <div className="workbench-timeline__right">
+      <div className={cn(
+        'workbench-timeline__controls',
+        'absolute top-[10px] right-4 z-[8] inline-flex items-center gap-0.5',
+        'bg-[color-mix(in_oklch,var(--nomi-paper)_84%,transparent)]',
+        'rounded-full backdrop-blur-[10px]',
+      )}>
+        <div className={cn(
+          'workbench-timeline__right',
+          'inline-flex items-center gap-0.5 min-w-0 p-0',
+        )}>
           {selectedClipId ? (
-            <div className="workbench-timeline__clip-tools" aria-label="选中片段操作">
-              <WorkbenchIconButton className="workbench-timeline__tool" label="向前微调片段" icon={<IconArrowLeft size={14} />} onClick={() => nudgeTimelineClip(selectedClipId, -1)} />
-              <WorkbenchIconButton className="workbench-timeline__tool" label="分割片段" icon={<IconCut size={14} />} onClick={() => splitTimelineClip(selectedClipId, timeline.playheadFrame)} />
-              <WorkbenchIconButton className="workbench-timeline__tool" label="复制片段" icon={<IconCopy size={14} />} onClick={() => duplicateTimelineClip(selectedClipId)} />
-              <WorkbenchIconButton className="workbench-timeline__tool" label="向后微调片段" icon={<IconArrowRight size={14} />} onClick={() => nudgeTimelineClip(selectedClipId, 1)} />
+            <div className={cn(
+              'workbench-timeline__clip-tools',
+              'inline-flex items-center gap-0.5 pr-0 border-r-0',
+            )} aria-label="选中片段操作">
+              <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label="向前微调片段" icon={<IconArrowLeft size={14} />} onClick={() => nudgeTimelineClip(selectedClipId, -1)} />
+              <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label="分割片段" icon={<IconCut size={14} />} onClick={() => splitTimelineClip(selectedClipId, timeline.playheadFrame)} />
+              <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label="复制片段" icon={<IconCopy size={14} />} onClick={() => duplicateTimelineClip(selectedClipId)} />
+              <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label="向后微调片段" icon={<IconArrowRight size={14} />} onClick={() => nudgeTimelineClip(selectedClipId, 1)} />
             </div>
           ) : null}
-          <WorkbenchIconButton className="workbench-timeline__tool" label={`${actionLabelPrefix}缩小时间轴`} icon={<IconMinus size={14} />} onClick={() => setTimelineZoom(timeline.scale / 1.25)} />
-          <span style={{ fontSize: 11, opacity: 0.6, minWidth: 32, textAlign: 'center' }}>{Math.round(timeline.scale * 100)}%</span>
-          <WorkbenchIconButton className="workbench-timeline__tool" label="重置缩放" icon={<IconRefresh size={14} />} onClick={() => setTimelineZoom(1)} />
-          <WorkbenchIconButton className="workbench-timeline__tool" label={`${actionLabelPrefix}放大时间轴`} icon={<IconPlus size={14} />} onClick={() => setTimelineZoom(timeline.scale * 1.25)} />
-          <WorkbenchIconButton className="workbench-timeline__tool" label={`${actionLabelPrefix}删除选中片段`} icon={<IconTrash size={14} />} disabled={!selectedClipId} onClick={() => removeTimelineClip(selectedClipId)} />
+          <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label={`${actionLabelPrefix}缩小时间轴`} icon={<IconMinus size={14} />} onClick={() => setTimelineZoom(timeline.scale / 1.25)} />
+          <span className="text-[11px] opacity-60 min-w-[32px] text-center">{Math.round(timeline.scale * 100)}%</span>
+          <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label="重置缩放" icon={<IconRefresh size={14} />} onClick={() => setTimelineZoom(1)} />
+          <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label={`${actionLabelPrefix}放大时间轴`} icon={<IconPlus size={14} />} onClick={() => setTimelineZoom(timeline.scale * 1.25)} />
+          <WorkbenchIconButton className={cn('workbench-timeline__tool', 'w-auto min-w-[30px] h-[var(--workbench-control-size)] px-2 inline-grid place-items-center border-0 rounded-[var(--workbench-control-radius)] bg-transparent text-[var(--workbench-muted)] shadow-none cursor-pointer hover:bg-[var(--workbench-hover)]')} label={`${actionLabelPrefix}删除选中片段`} icon={<IconTrash size={14} />} disabled={!selectedClipId} onClick={() => removeTimelineClip(selectedClipId)} />
         </div>
       </div>
       <div
-        className="workbench-timeline__tracks"
+        className={cn(
+          'workbench-timeline__tracks',
+          'relative min-w-0 min-h-0 block bg-transparent',
+          'overflow-x-auto overflow-y-hidden pb-2',
+          'scrollbar-thin scrollbar-color-transparent',
+          'hover:scrollbar-color-[color-mix(in_srgb,var(--nomi-ink)_22%,transparent)]',
+        )}
         onWheel={(e) => {
           if (!e.ctrlKey && !e.metaKey) return
           e.preventDefault()
@@ -168,27 +192,58 @@ export default function TimelinePanel({ density = 'compact', regionLabel, action
           setTimelineZoom(Math.min(TIMELINE_MAX_SCALE, Math.max(TIMELINE_MIN_SCALE, timeline.scale * factor)))
         }}
       >
-        <div className="workbench-timeline__ruler">
-          <div className="workbench-timeline__ruler-spacer" aria-hidden="true" />
+        <div className={cn(
+          'workbench-timeline__ruler',
+          'w-full grid grid-cols-[var(--workbench-timeline-label-width)_minmax(0,1fr)]',
+          'h-[22px] mb-1.5 border-b border-[var(--nomi-line-soft)] bg-transparent',
+        )}>
+          <div className={cn(
+            'workbench-timeline__ruler-spacer',
+            'sticky left-0 z-[4] border-r-0 bg-transparent',
+          )} aria-hidden="true" />
           <div
-            className="workbench-timeline__ruler-content"
+            className={cn(
+              'workbench-timeline__ruler-content',
+              'relative h-full cursor-pointer bg-transparent',
+            )}
+            style={{
+              width: 'var(--workbench-timeline-content-width, 100%)',
+              minWidth: 'var(--workbench-timeline-content-width, 100%)',
+            }}
             aria-label="时间刻度"
             onClick={handleRulerClick}
           >
             {rulerTicks.map((tick) => (
               <span
                 key={tick.frame}
-                className="workbench-timeline__ruler-tick"
+                className={cn(
+                  'workbench-timeline__ruler-tick',
+                  'absolute left-0 top-0 w-0 h-full bg-transparent text-[var(--workbench-muted)]',
+                  'after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-px after:h-[22px] after:bg-[var(--nomi-line)]',
+                )}
                 data-origin={tick.frame === 0 ? 'true' : 'false'}
                 style={{ transform: `translateX(${frameToPixel(tick.frame, timeline.scale)}px)` }}
               >
-                <span className="workbench-timeline__ruler-label">{tick.label}</span>
+                <span className={cn(
+                  'workbench-timeline__ruler-label',
+                  'absolute left-1.5 top-[3px] font-mono text-[10.5px] font-medium leading-none',
+                  'text-[var(--nomi-ink-40)] whitespace-nowrap tabular-nums',
+                )}>{tick.label}</span>
               </span>
             ))}
           </div>
         </div>
         <div
-          className="workbench-timeline__playhead"
+          className={cn(
+            'workbench-timeline__playhead',
+            'absolute top-0 bottom-0 left-[var(--workbench-timeline-label-width)] z-[6]',
+            'w-px bg-[var(--workbench-accent)] shadow-[0_0_0_1px_rgba(0,122,255,0.08)]',
+            'pointer-events-none',
+            'before:content-[""] before:absolute before:-top-px before:left-1/2 before:w-[9px] before:h-[9px]',
+            'before:border-2 before:border-[var(--nomi-paper)] before:rounded-full',
+            'before:bg-[var(--workbench-accent)] before:shadow-[0_1px_2px_oklch(0_0_0/0.2)]',
+            'before:-translate-x-1/2',
+          )}
           style={{ transform: `translateX(${frameToPixel(timeline.playheadFrame, timeline.scale)}px)` }}
           aria-hidden="true"
         />

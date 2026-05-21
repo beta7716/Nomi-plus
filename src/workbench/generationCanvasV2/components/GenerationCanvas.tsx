@@ -3,6 +3,7 @@ import { IconCopy, IconCut, IconX } from '@tabler/icons-react'
 import { Scissors } from 'lucide-react'
 import { WorkbenchButton, WorkbenchIconButton } from '../../../design'
 import { toast } from '../../../ui/toast'
+import { cn } from '../../../utils/cn'
 import CanvasToolbar, { NodeAddMenu } from './CanvasToolbar'
 import BaseGenerationNode from './nodes/BaseGenerationNode'
 import { importImageFilesToGenerationCanvas } from '../adapters/assetImportAdapter'
@@ -536,23 +537,50 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
   const selectedCount = selectedNodeIds.length
 
   return (
-    <section className="generation-canvas-v2" aria-label="AI 影像创作画布" data-ready={isReady ? 'true' : undefined}>
-      <div className="generation-canvas-v2__main">
+    <section
+      className={cn(
+        'generation-canvas-v2',
+        'grid grid-rows-[minmax(0,1fr)] w-full h-full min-w-0 min-h-0 bg-[#f7f7f9] text-workbench-ink',
+      )}
+      aria-label="AI 影像创作画布"
+      data-ready={isReady ? 'true' : undefined}
+    >
+      <div className={cn('generation-canvas-v2__main', 'relative w-full h-full min-w-0 min-h-0')}>
         {settingsOpen ? (
-          <div className="generation-canvas-v2__provider-popover" onPointerDown={(event) => event.stopPropagation()}>
-            <div className="generation-canvas-v2__provider-summary" aria-label="模型目录状态">
+          <div
+            className={cn(
+              'generation-canvas-v2__provider-popover',
+              'absolute top-4 right-4 z-[12] grid gap-[10px]',
+              'w-[min(360px,calc(100vw-40px))] p-3',
+              'border border-workbench-border rounded-[12px]',
+              'bg-white/[0.98] shadow-workbench-pop pointer-events-auto',
+            )}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <div
+              className={cn(
+                'flex items-center justify-between gap-2 pb-2',
+                'border-b border-workbench-border/[0.58] text-workbench-muted text-xs',
+              )}
+              aria-label="模型目录状态"
+            >
               <span>系统模型目录</span>
-              <strong>{imageModelOptions.length} 图 / {videoModelOptions.length} 视频</strong>
+              <strong className="text-workbench-ink text-xs font-[650]">{imageModelOptions.length} 图 / {videoModelOptions.length} 视频</strong>
               <WorkbenchButton onClick={() => { window.dispatchEvent(new CustomEvent(OPEN_MODEL_CATALOG_EVENT)) }}>接入模型</WorkbenchButton>
             </div>
-            <p className="generation-canvas-v2__provider-note">
+            <p className={cn('m-0 text-workbench-muted text-xs leading-[1.45]')}>
               {modelOptionsStatusMessage
                 ? modelOptionsStatusMessage
-                : '可选模型来自模型目录；没有模型时请打开“模型接入”，让 Agent 根据官方文档生成草案并确认写入。'}
+                : '可选模型来自模型目录；没有模型时请打开"模型接入"，让 Agent 根据官方文档生成草案并确认写入。'}
             </p>
-            <label>
+            <label className="grid gap-[5px] text-workbench-muted text-xs">
               <span>API Key</span>
               <input
+                className={cn(
+                  'h-[34px] min-w-0 px-[10px]',
+                  'border border-workbench-border rounded-workbench-control',
+                  'bg-workbench-surface-solid text-workbench-ink font-[inherit] text-[13px]',
+                )}
                 type="password"
                 value={apiKey}
                 placeholder="粘贴生成渠道 API Key"
@@ -562,9 +590,14 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
                 }}
               />
             </label>
-            <label>
+            <label className="grid gap-[5px] text-workbench-muted text-xs">
               <span>Base URL</span>
               <input
+                className={cn(
+                  'h-[34px] min-w-0 px-[10px]',
+                  'border border-workbench-border rounded-workbench-control',
+                  'bg-workbench-surface-solid text-workbench-ink font-[inherit] text-[13px]',
+                )}
                 value={baseUrl}
                 placeholder={GENERATION_DEFAULT_BASE_URL}
                 onChange={(event) => {
@@ -573,12 +606,12 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
                 }}
               />
             </label>
-            <div className="generation-canvas-v2__provider-actions">
+            <div className={cn('flex justify-end gap-2')}>
               <WorkbenchButton onClick={handleSaveSettings}>保存</WorkbenchButton>
               <WorkbenchButton onClick={() => setSettingsOpen(false)}>关闭</WorkbenchButton>
             </div>
-            <p data-tone={hasApiKey ? 'success' : 'error'}>
-              {settingsSaved ? '已保存生成渠道配置。' : hasApiKey ? '当前已配置生成渠道 Key。' : '旧渠道 Key 未配置；新模型优先通过“模型接入”写入模型目录。'}
+            <p className="m-0 text-xs" data-tone={hasApiKey ? 'success' : 'error'}>
+              {settingsSaved ? '已保存生成渠道配置。' : hasApiKey ? '当前已配置生成渠道 Key。' : '旧渠道 Key 未配置；新模型优先通过"模型接入"写入模型目录。'}
             </p>
           </div>
         ) : null}
@@ -603,7 +636,7 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
           onDrop={handleStageDrop}
         >
           <div
-            className="generation-canvas-v2__canvas"
+            className={cn('generation-canvas-v2__canvas', 'absolute inset-0 origin-top-left')}
             style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
           >
             <svg className="generation-canvas-v2__edges" aria-label="节点连接线">
@@ -646,10 +679,16 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
                     ) : null}
                     {isActiveEdge && !readOnly ? (
                       <foreignObject x={midX - 18} y={midY - 18} width="36" height="36">
-                        <div className="generation-canvas-v2__edge-cut-wrap">
+                        <div className={cn('generation-canvas-v2__edge-cut-wrap', 'grid w-9 h-9 place-items-center pointer-events-auto')}>
                           <button
                             type="button"
-                            className="generation-canvas-v2__edge-cut"
+                            className={cn(
+                              'generation-canvas-v2__edge-cut',
+                              'inline-grid w-[30px] h-[30px] place-items-center p-0 border-0 rounded-full',
+                              'bg-nomi-paper text-workbench-danger cursor-pointer',
+                              'shadow-[0_8px_24px_rgba(18,24,38,0.18),0_0_0_1px_rgba(18,24,38,0.08)]',
+                              'hover:bg-workbench-danger hover:text-nomi-paper',
+                            )}
                             aria-label={`断开连接：${source.title} 到 ${target.title}`}
                             title={`断开连接：${EDGE_MODE_LABEL[mode]}`}
                             onPointerDown={(event) => event.stopPropagation()}
@@ -685,21 +724,26 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
                 )
               })()}
             </svg>
-            <div className="generation-canvas-v2__nodes">
+            <div className={cn('generation-canvas-v2__nodes', 'absolute top-0 left-0 w-[4000px] h-[3000px]')}>
               {nodes.map((node) => (
                 <BaseGenerationNode key={node.id} node={node} selected={selectedSet.has(node.id)} readOnly={readOnly} />
               ))}
             </div>
             {selectedBounds && selectedCount > 1 && !readOnly ? (
               <div
-                className="generation-canvas-v2__selection-toolbar"
+                className={cn(
+                  'generation-canvas-v2__selection-toolbar',
+                  'absolute z-[11] inline-flex items-center gap-1 px-[6px] py-1',
+                  'border border-nomi-line rounded-full',
+                  'bg-nomi-paper/[0.96] shadow-nomi-md pointer-events-auto',
+                )}
                 style={{
                   transform: `translate(${Math.round(selectedBounds.minX + selectedBounds.width / 2)}px, ${Math.round(Math.max(24, selectedBounds.minY - 44))}px) translateX(-50%)`,
                 }}
                 aria-label="选中区域操作"
                 onPointerDown={(event) => event.stopPropagation()}
               >
-                <span className="generation-canvas-v2__selection-count">{selectedCount} 个节点</span>
+                <span className={cn('px-[6px] text-nomi-ink-60 text-[11px] whitespace-nowrap')}>{selectedCount} 个节点</span>
                 <WorkbenchIconButton label="复制选中节点" icon={<IconCopy size={14} />} onClick={copySelectedNodes} />
                 <WorkbenchIconButton label="剪切选中节点" icon={<IconCut size={14} />} onClick={cutSelectedNodes} />
                 <WorkbenchIconButton label="清除选择" icon={<IconX size={14} />} onClick={clearSelection} />
@@ -707,14 +751,21 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
             ) : null}
           </div>
           {nodes.length === 0 ? (
-            <div className="generation-canvas-v2__empty">
+            <div className={cn(
+              'absolute top-[48%] left-1/2 grid gap-[6px]',
+              'text-workbench-muted text-[13px] text-center',
+              '-translate-x-1/2 -translate-y-1/2',
+            )}>
               <strong>开始搭建生成链路</strong>
               <span>添加文本、角色、图片或视频节点。</span>
             </div>
           ) : null}
           {selectionBox ? (
             <div
-              className="generation-canvas-v2__selection-box"
+              className={cn(
+                'generation-canvas-v2__selection-box',
+                'absolute z-[7] border border-nomi-accent bg-nomi-accent/[0.09] pointer-events-none',
+              )}
               style={{
                 left: selectionBox.left,
                 top: selectionBox.top,
@@ -726,7 +777,7 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
           ) : null}
           {contextNodeMenu ? (
             <NodeAddMenu
-              className="generation-canvas-v2__context-node-menu"
+              className={cn('generation-canvas-v2__context-node-menu', 'z-[20]')}
               style={{ left: contextNodeMenu.stageX, top: contextNodeMenu.stageY }}
               onPointerDown={(event) => event.stopPropagation()}
               onContextMenu={(event) => event.preventDefault()}
@@ -734,7 +785,15 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
             />
           ) : null}
         </div>
-        <div className="generation-canvas-v2__zoom-bar" aria-label="画布缩放">
+        <div
+          className={cn(
+            'generation-canvas-v2__zoom-bar',
+            'absolute left-4 bottom-6 z-[8] inline-flex items-center gap-[2px]',
+            'min-h-9 p-1 border border-workbench-border rounded-nomi',
+            'bg-nomi-paper shadow-workbench-sm',
+          )}
+          aria-label="画布缩放"
+        >
           <WorkbenchButton aria-label="适应视图" title={nodes.length === 0 ? '画布为空' : '适应视图'} disabled={nodes.length === 0} onClick={fitView}>⌖</WorkbenchButton>
           <WorkbenchButton
             aria-label="重置视图"
@@ -742,6 +801,7 @@ export default function GenerationCanvas({ readOnly = false }: GenerationCanvasP
             onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }) }}
           >▦</WorkbenchButton>
           <input
+            className="w-[78px] accent-workbench-accent"
             type="range"
             min="20"
             max="300"

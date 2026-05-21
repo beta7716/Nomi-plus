@@ -4,6 +4,7 @@ import { Group, Stack, Text } from '@mantine/core'
 import type { ModelCatalogVendorDto } from '../deps'
 import { clearModelCatalogVendorApiKey, toast, upsertModelCatalogVendorApiKey } from '../deps'
 import { DesignAlert, DesignButton, DesignModal, DesignTextInput } from '../../../../../design'
+import { cn } from '../../../../../utils/cn'
 
 function toErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error && error.message.trim()) return error.message
@@ -75,7 +76,7 @@ export function VendorApiKeyModal({
 
   return (
     <DesignModal
-      className="stats-model-catalog-vendor-api-key-modal"
+      className={cn('stats-model-catalog-vendor-api-key-modal')}
       opened={opened}
       onClose={onClose}
       title={vendor ? `设置 API Key：${vendor.name}（${vendor.key}）` : '设置 API Key'}
@@ -84,29 +85,28 @@ export function VendorApiKeyModal({
       centered
       lockScroll={false}
     >
-      <Stack className="stats-model-catalog-vendor-api-key-form" gap="sm">
-        <DesignAlert className="stats-model-catalog-vendor-api-key-alert" variant="light" color="blue" title="系统级全局 Key">
-          <Text className="stats-model-catalog-vendor-api-key-alert-text" size="sm" c="dimmed">
-            {'仅用于服务商侧统一调用；保存后不会回显。导出”配置”默认不含 Key；导出”迁移包”会包含 Key（明文）。'}
+      <Stack className={cn('stats-model-catalog-vendor-api-key-form')} gap="sm">
+        <DesignAlert className={cn('stats-model-catalog-vendor-api-key-alert')} variant="light" color="blue" title={'系统级全局 Key'}>
+          <Text size="sm" c="dimmed">
+            {'仅用于服务商侧统一调用；保存后不会回显。导出"配置"默认不含 Key；导出"迁移包"会包含 Key（明文）。'}
           </Text>
         </DesignAlert>
         <DesignTextInput
-          className="stats-model-catalog-vendor-api-key-input"
           label="API Key"
-          placeholder="粘贴厂商 API Key（保存后不回显）"
+          placeholder={'粘贴厂商 API Key（保存后不回显）'}
           value={apiKeyValue}
           onChange={(e) => setApiKeyValue(e.currentTarget.value)}
           type="password"
           autoComplete="off"
         />
-        <Group className="stats-model-catalog-vendor-api-key-actions" justify="space-between" gap={8} wrap="wrap">
-          <DesignButton className="stats-model-catalog-vendor-api-key-clear" variant="light" color="red" onClick={() => void clearVendorApiKey()} disabled={!vendor?.hasApiKey}>
-            清除
+        <Group className={cn('stats-model-catalog-vendor-api-key-actions justify-between flex-wrap gap-2')} justify="space-between" gap={8} wrap="wrap">
+          <DesignButton variant="light" color="red" onClick={() => void clearVendorApiKey()} disabled={!vendor?.hasApiKey}>
+            {'清除'}
           </DesignButton>
-          <Group className="stats-model-catalog-vendor-api-key-actions-right" gap={8} wrap="nowrap">
-            <DesignButton className="stats-model-catalog-vendor-api-key-cancel" variant="subtle" onClick={onClose}>取消</DesignButton>
-            <DesignButton className="stats-model-catalog-vendor-api-key-save" onClick={() => void submitVendorApiKey()} loading={submitting}>
-              保存
+          <Group className={cn('flex-nowrap gap-2')} gap={8} wrap="nowrap">
+            <DesignButton variant="subtle" onClick={onClose}>{'取消'}</DesignButton>
+            <DesignButton onClick={() => void submitVendorApiKey()} loading={submitting}>
+              {'保存'}
             </DesignButton>
           </Group>
         </Group>

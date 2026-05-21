@@ -1,5 +1,6 @@
 import React from 'react'
 import { WorkbenchButton } from '../../design'
+import { cn } from '../../utils/cn'
 import { useWorkbenchStore } from '../workbenchStore'
 import { canPlaceClip, frameToPixel, withClipStartFrame } from './timelineEdit'
 import type { TimelineClip as TimelineClipData } from './timelineTypes'
@@ -85,10 +86,16 @@ export default function TimelineClip({ clip }: TimelineClipProps): JSX.Element {
   const clipWidth = Math.max(36, frameToPixel(clip.frameCount, scale))
 
   const thumbContent = clip.thumbnailUrl ? (
-    <img className="workbench-timeline-clip__thumb" src={clip.thumbnailUrl} alt="" draggable={false} />
+    <img className={cn(
+      'workbench-timeline-clip__thumb',
+      'block absolute inset-0 w-full h-full object-cover rounded-[inherit] bg-[var(--nomi-ink-10)]',
+    )} src={clip.thumbnailUrl} alt="" draggable={false} />
   ) : showVideoThumb && clipVideoUrl ? (
     <video
-      className="workbench-timeline-clip__thumb"
+      className={cn(
+        'workbench-timeline-clip__thumb',
+        'block absolute inset-0 w-full h-full object-cover rounded-[inherit] bg-[var(--nomi-ink-10)]',
+      )}
       src={buildVideoPlaybackUrl(clipVideoUrl)}
       crossOrigin="use-credentials"
       muted
@@ -101,14 +108,37 @@ export default function TimelineClip({ clip }: TimelineClipProps): JSX.Element {
     />
   ) : null
 
+  const isSelected = selectedClipId === clip.id
+
+  const clipBaseClasses = cn(
+    'workbench-timeline-clip',
+    'absolute top-[5px] h-9 flex items-center gap-0 p-0',
+    'rounded text-[var(--workbench-ink)] text-[11px] font-medium',
+    'shadow-[inset_0_1px_0_rgba(255,255,255,0.62)] cursor-grab select-none active:cursor-grabbing',
+    clip.type === 'image' && 'border border-[color-mix(in_srgb,var(--workbench-accent)_22%,transparent)] bg-[var(--workbench-accent-soft)]',
+    clip.type === 'video' && 'border border-[color-mix(in_srgb,var(--workbench-video)_24%,transparent)] bg-[var(--workbench-video-soft)]',
+  )
+
+  const selectedClasses = isSelected ? cn(
+    clip.type === 'video'
+      ? 'border-[color-mix(in_srgb,var(--workbench-video)_56%,transparent)] bg-[color-mix(in_srgb,var(--workbench-video)_16%,var(--workbench-surface))] shadow-[0_0_0_2px_color-mix(in_srgb,var(--workbench-video)_13%,transparent),0_8px_18px_var(--workbench-video-soft)]'
+      : 'border-[color-mix(in_srgb,var(--workbench-accent)_62%,transparent)] bg-[color-mix(in_srgb,var(--workbench-accent)_16%,var(--workbench-surface))] shadow-[0_0_0_2px_color-mix(in_srgb,var(--workbench-accent)_13%,transparent),0_8px_18px_var(--workbench-accent-soft)]',
+  ) : ''
+
+  const handleClasses = cn(
+    'workbench-timeline-clip__handle',
+    'absolute -top-px -bottom-px w-1.5 border-0 cursor-ew-resize opacity-90',
+    clip.type === 'video' ? 'bg-[var(--workbench-video)]' : 'bg-[var(--workbench-accent)]',
+  )
+
   return (
     <>
       <div
-        className="workbench-timeline-clip"
+        className={cn(clipBaseClasses, selectedClasses)}
         data-testid="timeline-clip"
         data-clip-type={clip.type}
         title={title}
-        data-selected={selectedClipId === clip.id ? 'true' : 'false'}
+        data-selected={isSelected ? 'true' : 'false'}
         style={{
           left: frameToPixel(clip.startFrame, scale),
           width: clipWidth,
@@ -123,18 +153,25 @@ export default function TimelineClip({ clip }: TimelineClipProps): JSX.Element {
         }}
         onPointerDown={beginDrag}
       >
-        {selectedClipId === clip.id ? (
+        {isSelected ? (
           <WorkbenchButton
-            className="workbench-timeline-clip__handle workbench-timeline-clip__handle--left"
+            className={cn(handleClasses, 'workbench-timeline-clip__handle--left', '-left-1 rounded-l-[5px] rounded-r-none')}
             aria-label="调整片段起点"
             onPointerDown={(event) => beginResize(event, 'left')}
           />
         ) : null}
         {thumbContent}
-        {!hasVisualThumb ? <span className="workbench-timeline-clip__label">{title}</span> : null}
-        {selectedClipId === clip.id ? (
+        {!hasVisualThumb ? (
+          <span className={cn(
+            'workbench-timeline-clip__label',
+            'relative z-[1] min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap',
+            'rounded-[3px] text-[var(--nomi-ink)] backdrop-blur-[8px]',
+            'self-end mt-auto mx-1 mb-1 px-[5px] py-0.5 bg-[color-mix(in_oklch,var(--nomi-paper)_72%,transparent)]',
+          )}>{title}</span>
+        ) : null}
+        {isSelected ? (
           <WorkbenchButton
-            className="workbench-timeline-clip__handle workbench-timeline-clip__handle--right"
+            className={cn(handleClasses, 'workbench-timeline-clip__handle--right', '-right-1 rounded-l-none rounded-r-[5px]')}
             aria-label="调整片段终点"
             onPointerDown={(event) => beginResize(event, 'right')}
           />
@@ -142,7 +179,12 @@ export default function TimelineClip({ clip }: TimelineClipProps): JSX.Element {
       </div>
       {isDragging ? (
         <div
-          className="workbench-timeline-clip workbench-timeline-clip__ghost"
+          className={cn(
+            clipBaseClasses,
+            'workbench-timeline-clip__ghost',
+            'opacity-70 pointer-events-none',
+            hasCollision && 'border-[var(--workbench-danger)] bg-[var(--workbench-danger-soft)] opacity-50',
+          )}
           data-clip-type={clip.type}
           data-collision={hasCollision ? 'true' : 'false'}
           aria-hidden="true"
@@ -154,7 +196,14 @@ export default function TimelineClip({ clip }: TimelineClipProps): JSX.Element {
           }}
         >
           {thumbContent}
-          {!hasVisualThumb ? <span className="workbench-timeline-clip__label">{title}</span> : null}
+          {!hasVisualThumb ? (
+            <span className={cn(
+              'workbench-timeline-clip__label',
+              'relative z-[1] min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap',
+              'rounded-[3px] text-[var(--nomi-ink)] backdrop-blur-[8px]',
+              'self-end mt-auto mx-1 mb-1 px-[5px] py-0.5 bg-[color-mix(in_oklch,var(--nomi-paper)_72%,transparent)]',
+            )}>{title}</span>
+          ) : null}
         </div>
       ) : null}
     </>

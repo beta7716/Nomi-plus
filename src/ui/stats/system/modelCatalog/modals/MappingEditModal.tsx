@@ -5,6 +5,7 @@ import { toast, upsertModelCatalogMapping } from '../deps'
 import { buildRequestProfileV2Template, TASK_KIND_OPTIONS } from '../modelCatalog.constants'
 import { extractRequestProfileFromMapping, isRequestProfileV2, prettyJson, safeParseJson } from '../modelCatalog.utils'
 import { DesignButton, DesignModal, DesignSelect, DesignSwitch, DesignTextInput, DesignTextarea } from '../../../../../design'
+import { cn } from '../../../../../utils/cn'
 
 export type MappingEditorState = { mode: 'create' } | { mode: 'edit'; mapping: ModelCatalogMappingDto }
 
@@ -162,7 +163,7 @@ export function MappingEditModal({
 
   return (
     <DesignModal
-      className="stats-model-catalog-mapping-modal"
+      className={cn('stats-model-catalog-mapping-modal')}
       opened={opened}
       onClose={onClose}
       title={id ? '编辑请求策略' : '新增请求策略'}
@@ -171,57 +172,57 @@ export function MappingEditModal({
       centered
       lockScroll={false}
     >
-      <Stack className="stats-model-catalog-mapping-form" gap="sm">
-        <Group className="stats-model-catalog-mapping-form-top" gap="sm" wrap="wrap" align="flex-end">
-          <DesignSelect className="stats-model-catalog-mapping-form-vendor" label="所属平台" data={vendorOptions} value={vendorKey} onChange={(value) => setVendorKey(value || '')} searchable w={260} />
-          <DesignSelect className="stats-model-catalog-mapping-form-taskkind" label="模板类型" data={TASK_KIND_OPTIONS} value={taskKind} onChange={(value) => {
+      <Stack className={cn('stats-model-catalog-mapping-form')} gap="sm">
+        <Group className={cn('stats-model-catalog-mapping-form-top')} gap="sm" wrap="wrap" align="flex-end">
+          <DesignSelect label={'所属平台'} data={vendorOptions} value={vendorKey} onChange={(value) => setVendorKey(value || '')} searchable w={260} />
+          <DesignSelect label={'模板类型'} data={TASK_KIND_OPTIONS} value={taskKind} onChange={(value) => {
             const nextValue = parseProfileKind(value)
             setTaskKind(nextValue)
             setRequestProfileTemplateKind(nextValue)
           }} w={260} />
         </Group>
-        <DesignTextInput className="stats-model-catalog-mapping-form-name" label="映射名称" placeholder="例如 默认映射 / v2 / 自定义" value={name} onChange={(event) => setName(event.currentTarget.value)} />
-        <DesignSwitch className="stats-model-catalog-mapping-form-enabled" checked={enabled} onChange={(event) => setEnabled(event.currentTarget.checked)} label="启用" />
+        <DesignTextInput label={'映射名称'} placeholder={'例如 默认映射 / v2 / 自定义'} value={name} onChange={(event) => setName(event.currentTarget.value)} />
+        <DesignSwitch checked={enabled} onChange={(event) => setEnabled(event.currentTarget.checked)} label={'启用'} />
 
-        <Divider className="stats-model-catalog-mapping-form-divider" label="请求策略（request_profile）" labelPosition="left" />
-        <Group className="stats-model-catalog-mapping-form-profile-top" gap="sm" wrap="wrap" align="flex-end">
-          <DesignSwitch className="stats-model-catalog-mapping-form-profile-enabled" checked={requestProfileEnabled} onChange={(event) => setRequestProfileEnabled(event.currentTarget.checked)} label="启用策略" />
-          <DesignTextInput className="stats-model-catalog-mapping-form-profile-version" label="版本" value={requestProfileVersion} onChange={(event) => setRequestProfileVersion(event.currentTarget.value)} w={120} />
-          <DesignSwitch className="stats-model-catalog-mapping-form-profile-advanced" checked={requestProfileAdvanced} onChange={(event) => setRequestProfileAdvanced(event.currentTarget.checked)} label="高级模式" />
-          <DesignButton className="stats-model-catalog-mapping-form-profile-fill" variant="light" onClick={fillTemplate}>
-            按模板类型填充示例
+        <Divider className={cn('stats-model-catalog-mapping-form-divider')} label={'请求策略（request_profile）'} labelPosition="left" />
+        <Group className={cn('stats-model-catalog-mapping-form-profile-top')} gap="sm" wrap="wrap" align="flex-end">
+          <DesignSwitch checked={requestProfileEnabled} onChange={(event) => setRequestProfileEnabled(event.currentTarget.checked)} label={'启用策略'} />
+          <DesignTextInput label={'版本'} value={requestProfileVersion} onChange={(event) => setRequestProfileVersion(event.currentTarget.value)} w={120} />
+          <DesignSwitch checked={requestProfileAdvanced} onChange={(event) => setRequestProfileAdvanced(event.currentTarget.checked)} label={'高级模式'} />
+          <DesignButton variant="light" onClick={fillTemplate}>
+            {'按模板类型填充示例'}
           </DesignButton>
         </Group>
 
         {requestProfileEnabled ? (
-          <Stack className="stats-model-catalog-mapping-form-profile-json-wrap" gap={6}>
-            <Text className="stats-model-catalog-mapping-form-profile-hint" size="xs" c="dimmed">
+          <Stack className={cn('stats-model-catalog-mapping-form-profile-json-wrap')} gap={6}>
+            <Text size="xs" c="dimmed">
               {requestProfileAdvanced ? '直接编辑 request_profile v2 JSON。create/query 可以写 default + candidates，支持和导入 JSON 相同的结构。' : '当前是模板模式；建议先点“按模板类型填充示例”，再按你的厂商接口修改字段。'}
             </Text>
             <DesignTextarea
-              className="stats-model-catalog-mapping-form-profile-json"
+              className={cn('stats-model-catalog-mapping-form-profile-json')}
               label="request_profile v2 JSON"
               value={requestProfileJson}
               onChange={(event) => setRequestProfileJson(event.currentTarget.value)}
               minRows={18}
               autosize
-              placeholder="粘贴完整 request_profile v2 JSON"
+              placeholder={'粘贴完整 request_profile v2 JSON'}
             />
           </Stack>
         ) : (
-          <Stack className="stats-model-catalog-mapping-form-legacy" gap="sm">
-            <Text className="stats-model-catalog-mapping-form-legacy-hint" size="xs" c="dimmed">
-              关闭策略后，将回退到旧的 requestMapping / responseMapping 双字段编辑。
+          <Stack className={cn('stats-model-catalog-mapping-form-legacy')} gap="sm">
+            <Text size="xs" c="dimmed">
+              {'关闭策略后，将回退到旧的 requestMapping / responseMapping 双字段编辑。'}
             </Text>
-            <DesignTextarea className="stats-model-catalog-mapping-form-request" label="requestMapping（JSON，可选）" value={requestMapping} onChange={(event) => setRequestMapping(event.currentTarget.value)} minRows={6} autosize placeholder="把 TaskRequestDto 映射到三方请求体的规则" />
-            <DesignTextarea className="stats-model-catalog-mapping-form-response" label="responseMapping（JSON，可选）" value={responseMapping} onChange={(event) => setResponseMapping(event.currentTarget.value)} minRows={6} autosize placeholder="把三方响应映射回 TaskResultDto 的规则" />
+            <DesignTextarea label={'requestMapping（JSON，可选）'} value={requestMapping} onChange={(event) => setRequestMapping(event.currentTarget.value)} minRows={6} autosize placeholder={'把 TaskRequestDto 映射到三方请求体的规则'} />
+            <DesignTextarea label={'responseMapping（JSON，可选）'} value={responseMapping} onChange={(event) => setResponseMapping(event.currentTarget.value)} minRows={6} autosize placeholder={'把三方响应映射回 TaskResultDto 的规则'} />
           </Stack>
         )}
 
-        <Group className="stats-model-catalog-mapping-form-actions" justify="flex-end" gap={8}>
-          <DesignButton className="stats-model-catalog-mapping-form-cancel" variant="subtle" onClick={onClose}>取消</DesignButton>
-          <DesignButton className="stats-model-catalog-mapping-form-save" onClick={() => void submitMapping()} loading={submitting}>
-            保存
+        <Group className={cn('stats-model-catalog-mapping-form-actions justify-end gap-2')} justify="flex-end" gap={8}>
+          <DesignButton variant="subtle" onClick={onClose}>{'取消'}</DesignButton>
+          <DesignButton onClick={() => void submitMapping()} loading={submitting}>
+            {'保存'}
           </DesignButton>
         </Group>
       </Stack>

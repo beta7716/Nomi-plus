@@ -1,5 +1,10 @@
+@import 'tailwindcss/base';
 @import '@mantine/core/styles.css';
 @import '@mantine/notifications/styles.css';
 @import '../theme/nomi-tokens.css';
-@import '../light.css';
+@import './vendor-overrides.css';
+@import './animations.css';
+@import './performance.css';
 @import '../styles.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';

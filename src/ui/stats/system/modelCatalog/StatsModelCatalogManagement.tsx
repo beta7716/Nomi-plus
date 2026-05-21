@@ -55,6 +55,7 @@ import {
     DesignModal,
     IconActionButton,
 } from "../../../../design";
+import { cn } from "../../../../utils/cn";
 
 function getErrorMessage(error: unknown, fallback: string): string {
     return error instanceof Error && error.message.trim()
@@ -89,9 +90,7 @@ export default function StatsModelCatalogManagement({
     className?: string;
     compact?: boolean;
 }): JSX.Element {
-    const rootClassName = ["stats-model-catalog", className]
-        .filter(Boolean)
-        .join(" ");
+    const rootClassName = cn("stats-model-catalog", className);
 
     const [loading, setLoading] = React.useState(false);
     const [vendors, setVendors] = React.useState<ModelCatalogVendorDto[]>([]);

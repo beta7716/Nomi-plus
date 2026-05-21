@@ -2,6 +2,7 @@ import React from 'react'
 import { Group, Loader, Table, Text, Tooltip } from '@mantine/core'
 import { IconKey, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
 import { DesignButton, DesignSwitch, DesignTextInput, IconActionButton } from '../../../../design'
+import { cn } from '../../../../utils/cn'
 import type { ModelCatalogVendorDto } from './deps'
 import { ApiKeyStatusBadge, EnabledBadge } from './ModelCatalogBadges'
 import { ModelCatalogTableFooter } from './ModelCatalogTableFooter'
@@ -65,94 +66,94 @@ export function ModelCatalogVendorsSection({
   }, [])
 
   return (
-    <div className="stats-model-catalog-vendors-panel">
-      <Group className="stats-model-catalog-vendor-search" gap="sm" wrap="wrap" align="flex-end">
+    <div className={cn('stats-model-catalog-vendors-panel')}>
+      <Group className={cn('stats-model-catalog-vendor-search flex-wrap items-end gap-3')} gap="sm" wrap="wrap" align="flex-end">
         <DesignTextInput
-          className="stats-model-catalog-vendor-search-keyword"
+          className={cn('stats-model-catalog-vendor-search-keyword')}
           label="搜索"
           placeholder="搜索厂商 key / 名称 / BaseUrl"
           value={keywordInput}
           onChange={(event) => setKeywordInput(event.currentTarget.value)}
-          leftSection={<IconSearch className="stats-model-catalog-vendor-search-keyword-icon" size={14} />}
+          leftSection={<IconSearch size={14} />}
           w={320}
         />
         <DesignSwitch
-          className="stats-model-catalog-vendor-search-enabled"
+          className={cn('stats-model-catalog-vendor-search-enabled')}
           checked={enabledOnlyInput}
           onChange={(event) => setEnabledOnlyInput(event.currentTarget.checked)}
           label="仅看启用厂商"
           mb={4}
         />
-        <Group className="stats-model-catalog-vendor-search-actions" gap={8} mb={4}>
-          <DesignButton className="stats-model-catalog-vendor-search-submit" size="xs" onClick={submitSearch}>
+        <Group className={cn('stats-model-catalog-vendor-search-actions')} gap={8} mb={4}>
+          <DesignButton className={cn('stats-model-catalog-vendor-search-submit')} size="xs" onClick={submitSearch}>
             查询
           </DesignButton>
-          <DesignButton className="stats-model-catalog-vendor-search-reset" size="xs" variant="subtle" onClick={resetSearch}>
+          <DesignButton className={cn('stats-model-catalog-vendor-search-reset')} size="xs" variant="subtle" onClick={resetSearch}>
             重置
           </DesignButton>
-          <DesignButton className="stats-model-catalog-vendor-create" size="xs" variant="light" leftSection={<IconPlus className="stats-model-catalog-vendor-create-icon" size={14} />} onClick={onCreateVendor}>
+          <DesignButton className={cn('stats-model-catalog-vendor-create')} size="xs" variant="light" leftSection={<IconPlus size={14} />} onClick={onCreateVendor}>
             新增厂商
           </DesignButton>
         </Group>
       </Group>
 
-      <div className="stats-model-catalog-vendors-table-wrap" style={{ overflowX: 'auto' }}>
-        <Table className="stats-model-catalog-vendors-table" striped highlightOnHover withTableBorder withColumnBorders>
-          <Table.Thead className="stats-model-catalog-vendors-table-head">
-            <Table.Tr className="stats-model-catalog-vendors-table-head-row">
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 140 }}>Key</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 180 }}>名称</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 90 }}>状态</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 110 }}>API Key</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 160 }}>鉴权</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell">BaseUrl Hint</Table.Th>
-              <Table.Th className="stats-model-catalog-vendors-table-head-cell" style={{ width: 160 }}>操作</Table.Th>
+      <div className={cn('stats-model-catalog-vendors-table-wrap overflow-x-auto')}>
+        <Table className={cn('stats-model-catalog-vendors-table')} striped highlightOnHover withTableBorder withColumnBorders>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th style={{ width: 140 }}>Key</Table.Th>
+              <Table.Th style={{ width: 180 }}>名称</Table.Th>
+              <Table.Th style={{ width: 90 }}>状态</Table.Th>
+              <Table.Th style={{ width: 110 }}>API Key</Table.Th>
+              <Table.Th style={{ width: 160 }}>鉴权</Table.Th>
+              <Table.Th>BaseUrl Hint</Table.Th>
+              <Table.Th style={{ width: 160 }}>操作</Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody className="stats-model-catalog-vendors-table-body">
+          <Table.Tbody>
             {loading && !vendors.length ? (
-              <Table.Tr className="stats-model-catalog-vendors-table-row-loading">
-                <Table.Td className="stats-model-catalog-vendors-table-cell" colSpan={7}>
-                  <Group className="stats-model-catalog-loading" gap="xs" align="center">
-                    <Loader className="stats-model-catalog-loading-icon" size="sm" />
-                    <Text className="stats-model-catalog-loading-text" size="sm" c="dimmed">加载中…</Text>
+              <Table.Tr>
+                <Table.Td colSpan={7}>
+                  <Group className={cn('stats-model-catalog-loading')} gap="xs" align="center">
+                    <Loader size="sm" />
+                    <Text size="sm" c="dimmed">加载中…</Text>
                   </Group>
                 </Table.Td>
               </Table.Tr>
             ) : !pagedVendors.length ? (
-              <Table.Tr className="stats-model-catalog-vendors-table-row-empty">
-                <Table.Td className="stats-model-catalog-vendors-table-cell" colSpan={7}>
-                  <Text className="stats-model-catalog-empty" size="sm" c="dimmed">暂无厂商</Text>
+              <Table.Tr>
+                <Table.Td colSpan={7}>
+                  <Text className={cn('stats-model-catalog-empty')} size="sm" c="dimmed">暂无厂商</Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
               pagedVendors.map((vendor) => (
-                <Table.Tr className="stats-model-catalog-vendors-table-row" key={vendor.key}>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
-                    <Text className="stats-model-catalog-vendor-key" size="sm" fw={600}>{vendor.key}</Text>
+                <Table.Tr key={vendor.key}>
+                  <Table.Td>
+                    <Text size="sm" fw={600}>{vendor.key}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
-                    <Text className="stats-model-catalog-vendor-name" size="sm">{vendor.name}</Text>
+                  <Table.Td>
+                    <Text size="sm">{vendor.name}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
+                  <Table.Td>
                     <EnabledBadge enabled={!!vendor.enabled} />
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
+                  <Table.Td>
                     <ApiKeyStatusBadge hasApiKey={Boolean(vendor.hasApiKey)} />
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
-                    <Text className="stats-model-catalog-vendor-auth" size="sm" c="dimmed">{String(vendor.authType || 'bearer')}</Text>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">{String(vendor.authType || 'bearer')}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
-                    <Text className="stats-model-catalog-vendor-baseurl" size="sm" c="dimmed" style={{ wordBreak: 'break-all' }}>{(vendor.baseUrlHint || '').trim() || '—'}</Text>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed" style={{ wordBreak: 'break-all' }}>{(vendor.baseUrlHint || '').trim() || '—'}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-vendors-table-cell">
-                    <Group className="stats-model-catalog-vendor-row-actions" gap={6} justify="flex-end" wrap="nowrap">
-                      <Tooltip className="stats-model-catalog-vendor-apikey-tooltip" label="设置系统级全局 API Key（不回显）" withArrow>
-                        <IconActionButton className="stats-model-catalog-vendor-apikey" size="sm" variant="light" aria-label="vendor-api-key" onClick={() => onOpenVendorApiKey(vendor)} icon={<IconKey className="stats-model-catalog-vendor-apikey-icon" size={14} />} />
+                  <Table.Td>
+                    <Group className={cn('stats-model-catalog-vendor-row-actions flex-nowrap justify-end gap-1.5')} gap={6} justify="flex-end" wrap="nowrap">
+                      <Tooltip label="设置系统级全局 API Key（不回显）" withArrow>
+                        <IconActionButton size="sm" variant="light" aria-label="vendor-api-key" onClick={() => onOpenVendorApiKey(vendor)} icon={<IconKey size={14} />} />
                       </Tooltip>
-                      <DesignButton className="stats-model-catalog-vendor-edit" size="xs" variant="light" onClick={() => onEditVendor(vendor)}>编辑</DesignButton>
-                      <IconActionButton className="stats-model-catalog-vendor-delete" size="sm" variant="light" color="red" aria-label="delete-vendor" onClick={() => void onDeleteVendor(vendor)} icon={<IconTrash className="stats-model-catalog-vendor-delete-icon" size={14} />} />
+                      <DesignButton size="xs" variant="light" onClick={() => onEditVendor(vendor)}>编辑</DesignButton>
+                      <IconActionButton size="sm" variant="light" color="red" aria-label="delete-vendor" onClick={() => void onDeleteVendor(vendor)} icon={<IconTrash size={14} />} />
                     </Group>
                   </Table.Td>
                 </Table.Tr>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useWorkbenchStore } from '../workbenchStore'
+import { cn } from '../../utils/cn'
 import TimelinePanel from '../timeline/TimelinePanel'
 import { computeTimelineDuration, resolveActiveClipsAtFrame } from '../timeline/timelineMath'
 import TimelinePreview from './TimelinePreview'
@@ -46,7 +47,11 @@ export default function PreviewWorkspace(): JSX.Element {
   }, [durationFrame, playing, setTimelinePlaying, fps])
 
   return (
-    <section className="workbench-preview" aria-label="预览区">
+    <section className={cn(
+      'workbench-preview',
+      'w-full h-full min-w-0 min-h-0 grid grid-rows-[minmax(0,1fr)_var(--workbench-preview-timeline-height)]',
+      'overflow-hidden bg-[var(--workbench-bg)]',
+    )} aria-label="预览区">
       <TimelinePreview
         activeClips={activeClips}
         aspectRatio={previewAspectRatio}

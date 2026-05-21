@@ -1,6 +1,7 @@
 import React from 'react'
 import { create } from 'zustand'
 import { notifications } from '@mantine/notifications'
+import { cn } from '../utils/cn'
 
 type ToastType = 'info' | 'success' | 'error' | 'warning'
 type Toast = { id: string; message: string; type?: ToastType; ttl?: number }
@@ -33,20 +34,20 @@ export function toast(message: string, type?: ToastType) {
   }
 }
 
-export function ToastHost({ className }: { className?: string }): JSX.Element {
+export function ToastHost({ className }: { className?: string } = {}): JSX.Element {
   const items = useToastStore((s) => s.items)
-  const hostClassName = ['tc-toast-host', className].filter(Boolean).join(' ')
   return (
-    <div className={hostClassName} style={{ position: 'fixed', bottom: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 50 }}>
+    <div className={cn('fixed bottom-4 right-4 flex flex-col gap-2 z-50', className)}>
       {items.map(i => (
-        <div className="tc-toast-host__item" key={i.id} style={{
-          padding: '8px 12px',
-          borderRadius: 8,
-          border: '1px solid rgba(127,127,127,.25)',
-          background: i.type === 'error' ? 'rgba(239,68,68,.12)' : i.type === 'success' ? 'rgba(16,185,129,.12)' : 'rgba(59,130,246,.12)',
-          color: 'inherit',
-          boxShadow: '0 2px 8px rgba(0,0,0,.08)'
-        }}>{i.message}</div>
+        <div
+          className={cn(
+            'px-3 py-2 rounded-lg border border-black/[.15] shadow-sm',
+            i.type === 'error' && 'bg-red-500/[.12]',
+            i.type === 'success' && 'bg-emerald-500/[.12]',
+            i.type !== 'error' && i.type !== 'success' && 'bg-blue-500/[.12]',
+          )}
+          key={i.id}
+        >{i.message}</div>
       ))}
     </div>
   )

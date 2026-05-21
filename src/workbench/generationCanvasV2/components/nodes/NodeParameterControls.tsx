@@ -1,4 +1,5 @@
 import React from 'react'
+import { cn } from '../../../../utils/cn'
 import { deriveGenerationModelCatalogStatus, findModelOptionByIdentifier, useGenerationModelOptionsState } from '../../adapters/modelOptionsAdapter'
 import {
   formatVideoOptionLabel,
@@ -771,20 +772,39 @@ export default function NodeParameterControls({
   if (section === 'references' && imageUrlSlots.length === 0) return null
 
   const rootClassName = section === 'references'
-    ? 'generation-canvas-v2-node__ref-section'
-    : [
+    ? cn('generation-canvas-v2-node__ref-section', 'flex flex-col gap-[5px]')
+    : cn(
         'generation-canvas-v2-node__params',
-        valueOnly ? 'generation-canvas-v2-node__params--value-only' : '',
-        section === 'parameters' || section === 'model' ? 'generation-canvas-v2-node__params--parameters' : '',
-        section === 'controls' ? 'generation-canvas-v2-node__params--controls' : '',
-      ].filter(Boolean).join(' ')
+        'grid grid-cols-[repeat(2,minmax(0,1fr))] gap-[6px] empty:hidden',
+        valueOnly && 'generation-canvas-v2-node__params--value-only',
+        (section === 'parameters' || section === 'model') && cn(
+          'generation-canvas-v2-node__params--parameters',
+          'flex flex-1 flex-nowrap gap-1 min-w-0 items-center',
+        ),
+        section === 'controls' && 'generation-canvas-v2-node__params--controls',
+      )
 
   return (
     <div className={rootClassName} aria-label={section === 'references' ? '参考素材' : '节点参数'}>
       {showModel ? (
-        <label className="generation-canvas-v2-node__param">
-          <span>模型</span>
+        <label className={cn(
+          'generation-canvas-v2-node__param',
+          'grid min-w-0 gap-[3px]',
+          (section === 'parameters' || section === 'model') && 'flex-1',
+        )}>
+          <span className={cn(
+            'overflow-hidden text-nomi-ink-40 text-[9.5px] leading-none',
+            'text-ellipsis whitespace-nowrap',
+            valueOnly && 'sr-only',
+          )}>模型</span>
           <select
+            className={cn(
+              'w-full min-w-0 h-6 pl-[7px] pr-[22px]',
+              'border border-nomi-line-soft rounded-[6px] outline-0',
+              'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[10.5px]',
+              'focus:border-nomi-accent focus:bg-nomi-paper',
+              valueOnly && 'h-[30px] border-0 bg-nomi-ink-05 text-[11.5px] font-semibold',
+            )}
             aria-label="模型"
             value={modelOptions.length > 0 ? selectedModelOption?.value || '' : ''}
             disabled={modelOptions.length === 0}
@@ -801,10 +821,25 @@ export default function NodeParameterControls({
       ) : null}
 
       {showControls ? renderedControls.map((control) => (
-        <label key={control.key} className="generation-canvas-v2-node__param">
-          <span>{control.label}</span>
+        <label key={control.key} className={cn(
+          'generation-canvas-v2-node__param',
+          'grid min-w-0 gap-[3px]',
+          (section === 'parameters' || section === 'controls') && 'flex-1',
+        )}>
+          <span className={cn(
+            'overflow-hidden text-nomi-ink-40 text-[9.5px] leading-none',
+            'text-ellipsis whitespace-nowrap',
+            valueOnly && 'sr-only',
+          )}>{control.label}</span>
           {!isParameterControl(control) ? (
             <select
+              className={cn(
+                'w-full min-w-0 h-6 pl-[7px] pr-[22px]',
+                'border border-nomi-line-soft rounded-[6px] outline-0',
+                'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[10.5px]',
+                'focus:border-nomi-accent focus:bg-nomi-paper',
+                valueOnly && 'h-[30px] border-0 bg-nomi-ink-05 text-[11.5px] font-semibold',
+              )}
               aria-label={control.label}
               value={catalogControlInitialValue(control, meta)}
               onChange={(event) => handleCatalogControlChange(control, event.target.value)}
@@ -815,6 +850,13 @@ export default function NodeParameterControls({
             </select>
           ) : control.type === 'boolean' ? (
             <select
+              className={cn(
+                'w-full min-w-0 h-6 pl-[7px] pr-[22px]',
+                'border border-nomi-line-soft rounded-[6px] outline-0',
+                'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[10.5px]',
+                'focus:border-nomi-accent focus:bg-nomi-paper',
+                valueOnly && 'h-[30px] border-0 bg-nomi-ink-05 text-[11.5px] font-semibold',
+              )}
               aria-label={control.label}
               value={controlInitialValue(control, meta)}
               onChange={(event) => handleParameterControlChange(control, event.target.value)}
@@ -824,6 +866,13 @@ export default function NodeParameterControls({
             </select>
           ) : control.options.length > 0 ? (
             <select
+              className={cn(
+                'w-full min-w-0 h-6 pl-[7px] pr-[22px]',
+                'border border-nomi-line-soft rounded-[6px] outline-0',
+                'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[10.5px]',
+                'focus:border-nomi-accent focus:bg-nomi-paper',
+                valueOnly && 'h-[30px] border-0 bg-nomi-ink-05 text-[11.5px] font-semibold',
+              )}
               aria-label={control.label}
               value={controlInitialValue(control, meta)}
               onChange={(event) => handleParameterControlChange(control, event.target.value)}
@@ -836,7 +885,14 @@ export default function NodeParameterControls({
             </select>
           ) : (
             <input
-              className="generation-canvas-v2-node__param-input"
+              className={cn(
+                'generation-canvas-v2-node__param-input',
+                'w-full min-w-0 h-6 pl-[7px] pr-[22px]',
+                'border border-nomi-line-soft rounded-[6px] outline-0',
+                'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[10.5px]',
+                'focus:border-nomi-accent focus:bg-nomi-paper',
+                valueOnly && 'h-[30px] border-0 bg-nomi-ink-05 text-[11.5px] font-semibold',
+              )}
               aria-label={control.label}
               type={control.type === 'number' ? 'number' : 'text'}
               value={controlInitialValue(control, meta)}
@@ -851,7 +907,7 @@ export default function NodeParameterControls({
       )) : null}
 
       {showReferences && imageUrlSlots.length > 0 ? (
-        <div className="generation-canvas-v2-node__ref-pickers">
+        <div className={cn('generation-canvas-v2-node__ref-pickers', 'flex gap-[5px]')}>
           {activeSlots.map((slot) => {
             const edgeSource = getEdgeSourceForSlot(slot.group, edges, node.id)
             const metaRef = getSlotNodeRef(meta, slot.key)
@@ -861,9 +917,17 @@ export default function NodeParameterControls({
             const isEdgeConnected = Boolean(edgeSource)
             const isOpen = openSlotKey === slot.key
             return (
-              <div key={slot.key} className="generation-canvas-v2-node__ref-picker">
+              <div key={slot.key} className={cn('generation-canvas-v2-node__ref-picker', 'relative grid flex-none gap-[3px] justify-items-center')}>
                 <WorkbenchButton
-                  className="generation-canvas-v2-node__ref-thumb"
+                  className={cn(
+                    'generation-canvas-v2-node__ref-thumb',
+                    'relative w-9 h-9 p-0 rounded-[5px]',
+                    'border border-dashed border-nomi-line-soft',
+                    'bg-nomi-ink-05 text-nomi-ink-30 overflow-hidden',
+                    'flex items-center justify-center cursor-pointer',
+                    'data-[filled=true]:border-solid data-[filled=true]:border-nomi-line',
+                    'data-[edge=true]:border-solid data-[edge=true]:border-[oklch(0.6_0.14_250)] data-[edge=true]:shadow-[0_0_0_1px_oklch(0.6_0.14_250)]',
+                  )}
                   aria-label={slot.label}
                   data-filled={thumbUrl ? 'true' : 'false'}
                   data-edge={isEdgeConnected ? 'true' : 'false'}
@@ -871,17 +935,32 @@ export default function NodeParameterControls({
                   onClick={() => setOpenSlotKey(isOpen ? '' : slot.key)}
                 >
                   {thumbUrl ? (
-                    <img className="generation-canvas-v2-node__ref-thumb-image" src={thumbUrl} alt={slot.label} />
+                    <img className={cn('w-full h-full object-cover')} src={thumbUrl} alt={slot.label} />
                   ) : (
-                    <span className="generation-canvas-v2-node__ref-thumb-icon">+</span>
+                    <span className={cn('text-nomi-ink-30 text-[16px] leading-none select-none pointer-events-none')}>+</span>
                   )}
                 </WorkbenchButton>
                 {isOpen ? (
-                  <div className="generation-canvas-v2-node__ref-menu" role="menu" aria-label={`${slot.label}来源`}>
-                    <label className="generation-canvas-v2-node__ref-menu-item generation-canvas-v2-node__ref-menu-item--upload">
-                      <span className="generation-canvas-v2-node__ref-thumb-icon">{uploadingSlotKey === slot.key ? '…' : '+'}</span>
+                  <div
+                    className={cn(
+                      'generation-canvas-v2-node__ref-menu',
+                      'absolute top-[42px] left-0 z-[3]',
+                      'grid grid-cols-[repeat(4,32px)] gap-1 w-max max-w-[148px] p-[5px]',
+                      'border border-nomi-line-soft rounded-[7px]',
+                      'bg-nomi-paper shadow-nomi-lg',
+                    )}
+                    role="menu"
+                    aria-label={`${slot.label}来源`}
+                  >
+                    <label className={cn(
+                      'generation-canvas-v2-node__ref-menu-item',
+                      'relative flex items-center justify-center w-8 h-8 p-0',
+                      'border-0 rounded-[5px] bg-nomi-ink-05 text-nomi-ink-40',
+                      'font-[inherit] overflow-hidden cursor-pointer',
+                    )}>
+                      <span className={cn('text-nomi-ink-30 text-[16px] leading-none select-none pointer-events-none')}>{uploadingSlotKey === slot.key ? '…' : '+'}</span>
                       <input
-                        className="generation-canvas-v2-node__ref-file-input"
+                        className={cn('absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-default')}
                         aria-label={`${slot.label}本地图像`}
                         type="file"
                         accept="image/*"
@@ -899,17 +978,28 @@ export default function NodeParameterControls({
                       return (
                         <WorkbenchButton
                           key={item.id}
-                          className="generation-canvas-v2-node__ref-menu-item"
+                          className={cn(
+                            'generation-canvas-v2-node__ref-menu-item',
+                            'relative flex items-center justify-center w-8 h-8 p-0',
+                            'border-0 rounded-[5px] bg-nomi-ink-05 text-nomi-ink-40',
+                            'font-[inherit] overflow-hidden cursor-pointer',
+                          )}
                           aria-label={item.title}
                           onClick={() => handleSlotAssignment(slot, item.id)}
                         >
-                          <img className="generation-canvas-v2-node__ref-menu-image" src={itemUrl} alt={item.title} />
+                          <img className={cn('w-full h-full object-cover')} src={itemUrl} alt={item.title} />
                         </WorkbenchButton>
                       )
                     })}
                     {nodeRef ? (
                       <WorkbenchButton
-                        className="generation-canvas-v2-node__ref-menu-item generation-canvas-v2-node__ref-menu-item--clear"
+                        className={cn(
+                          'generation-canvas-v2-node__ref-menu-item',
+                          'relative flex items-center justify-center w-8 h-8 p-0',
+                          'border-0 rounded-[5px] bg-nomi-ink-05',
+                          'text-workbench-danger text-[15px]',
+                          'font-[inherit] overflow-hidden cursor-pointer',
+                        )}
                         aria-label="清除参考图"
                         onClick={() => handleSlotAssignment(slot, '')}
                       >
@@ -922,7 +1012,7 @@ export default function NodeParameterControls({
             )
           })}
           {uploadError ? (
-            <div className="generation-canvas-v2-node__ref-error" role="alert">{uploadError}</div>
+            <div className={cn('text-workbench-danger text-[10.5px] leading-[1.25]')} role="alert">{uploadError}</div>
           ) : null}
         </div>
       ) : null}

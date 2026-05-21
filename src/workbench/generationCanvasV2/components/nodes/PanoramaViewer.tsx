@@ -2,6 +2,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import ReactPannellum, { usePannellum } from 'react-pannellum'
 import { IconCamera, IconX } from '@tabler/icons-react'
+import { cn } from '../../../../utils/cn'
 import { WorkbenchIconButton } from '../../../../design'
 
 export type PanoramaScreenshot = {
@@ -227,7 +228,7 @@ function PanoramaExportableViewer({ children, imageUrl, viewerId }: { children: 
       const shouldPreserve =
         (contextId === 'webgl' || contextId === 'experimental-webgl') &&
         this.parentElement?.classList.contains('pnlm-render-container') &&
-        this.closest('.generation-canvas-v2-panorama-dialog__panel')
+        this.closest('[data-panorama-dialog-panel]')
       if (!shouldPreserve) {
         return originalGetContext.call(this, contextId as never, options as never)
       }
@@ -283,9 +284,38 @@ function PanoramaDialogToolbar({ onClose, onScreenshot }: PanoramaDialogToolbarP
   }, [onScreenshot, pannellum])
 
   return (
-    <div className="generation-canvas-v2-panorama-dialog__toolbar" onPointerDown={(event) => event.stopPropagation()}>
-      <WorkbenchIconButton className="generation-canvas-v2-panorama-dialog__button" label="截图当前视口" icon={<IconCamera size={15} />} onClick={handleScreenshot} />
-      <WorkbenchIconButton className="generation-canvas-v2-panorama-dialog__button" label="关闭预览" icon={<IconX size={15} />} onClick={onClose} />
+    <div
+      className={cn(
+        'absolute top-3 right-3 z-[2] flex items-center gap-1 p-[5px]',
+        'border border-border-subtle rounded-pill',
+        'bg-white/88 shadow-sm backdrop-blur-[12px] saturate-[1.2]',
+      )}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
+      <WorkbenchIconButton
+        className={cn(
+          'inline-grid w-6 h-6 place-items-center p-0',
+          'border border-transparent rounded-full',
+          'bg-transparent text-text-tertiary cursor-pointer',
+          'hover:bg-surface-inline hover:text-text-primary',
+          'disabled:opacity-45 disabled:cursor-wait',
+        )}
+        label="截图当前视口"
+        icon={<IconCamera size={15} />}
+        onClick={handleScreenshot}
+      />
+      <WorkbenchIconButton
+        className={cn(
+          'inline-grid w-6 h-6 place-items-center p-0',
+          'border border-transparent rounded-full',
+          'bg-transparent text-text-tertiary cursor-pointer',
+          'hover:bg-surface-inline hover:text-text-primary',
+          'disabled:opacity-45 disabled:cursor-wait',
+        )}
+        label="关闭预览"
+        icon={<IconX size={15} />}
+        onClick={onClose}
+      />
     </div>
   )
 }
@@ -334,7 +364,10 @@ export default function PanoramaViewer({ imageUrl, width, height, onEnterFullscr
 
   if (!imageUrl) {
     return (
-      <div style={{ width, height, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, opacity: 0.5 }}>
+      <div
+        className="flex items-center justify-center text-xs opacity-50"
+        style={{ width, height }}
+      >
         上传全景图或连接图片节点
       </div>
     )
@@ -342,7 +375,10 @@ export default function PanoramaViewer({ imageUrl, width, height, onEnterFullscr
 
   return (
     <>
-      <div style={{ width, height, position: 'relative', overflow: 'hidden', borderRadius: 4 }}>
+      <div
+        className="relative overflow-hidden rounded"
+        style={{ width, height }}
+      >
         <ReactPannellum
           id={previewViewerId}
           sceneId="main"
@@ -353,9 +389,9 @@ export default function PanoramaViewer({ imageUrl, width, height, onEnterFullscr
           <PanoramaFourViewCaptureBinder onCaptureFourView={onCaptureFourView} onScreenshot={onScreenshot} />
         </ReactPannellum>
         {/* 覆盖层：只阻止全景图内部事件，不阻止冒泡到节点 */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[11px] text-white/70 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">
               打开预览后可进行全景操作
             </span>
           </div>
@@ -364,14 +400,22 @@ export default function PanoramaViewer({ imageUrl, width, height, onEnterFullscr
 
       {fullscreen && typeof document !== 'undefined' ? createPortal(
         <div
-          className="generation-canvas-v2-panorama-dialog"
+          className={cn(
+            'fixed inset-0 z-[9999] flex items-center justify-center p-8',
+            'bg-[rgba(15,18,22,0.72)] backdrop-blur-[10px]',
+          )}
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             if (event.target === event.currentTarget) setFullscreen(false)
           }}
         >
           <section
-            className="generation-canvas-v2-panorama-dialog__panel"
+            className={cn(
+              'relative w-[min(96vw,calc((100vh-64px)*16/9))] aspect-video',
+              'max-h-[calc(100vh-64px)] overflow-hidden rounded-lg',
+              'bg-black shadow-[0_24px_72px_rgba(15,18,22,0.42)]',
+            )}
+            data-panorama-dialog-panel
             role="dialog"
             aria-modal="true"
             aria-label="全景预览"

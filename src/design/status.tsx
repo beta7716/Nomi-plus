@@ -1,4 +1,5 @@
 import { Alert, Badge, Progress, type AlertProps, type BadgeProps, type ProgressProps } from '@mantine/core'
+import { cn } from '../utils/cn'
 
 type StatusBadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
 
@@ -15,7 +16,11 @@ export type StatusBadgeProps = Omit<BadgeProps, 'color'> & {
 }
 
 export function StatusBadge({ tone = 'neutral', className, variant = 'light', ...props }: StatusBadgeProps): JSX.Element {
-  const rootClassName = className ? `tc-status-badge ${className}` : 'tc-status-badge'
+  const rootClassName = cn(
+    'tc-status-badge',
+    'tracking-[0.03em]',
+    className,
+  )
 
   return (
     <Badge
@@ -37,7 +42,10 @@ export function DesignBadge({
   variant = 'light',
   ...props
 }: DesignBadgeProps): JSX.Element {
-  const rootClassName = className ? `tc-design-badge ${className}` : 'tc-design-badge'
+  const rootClassName = cn(
+    'tc-design-badge',
+    className,
+  )
 
   return (
     <Badge
@@ -52,7 +60,10 @@ export function DesignBadge({
 export type DesignAlertProps = AlertProps
 
 export function DesignAlert({ className, radius = 'sm', variant = 'light', ...props }: DesignAlertProps): JSX.Element {
-  const rootClassName = className ? `tc-design-alert ${className}` : 'tc-design-alert'
+  const rootClassName = cn(
+    'tc-design-alert',
+    className,
+  )
 
   return <Alert {...props} className={rootClassName} radius={radius} variant={variant} />
 }
@@ -60,7 +71,10 @@ export function DesignAlert({ className, radius = 'sm', variant = 'light', ...pr
 export type DesignProgressProps = ProgressProps
 
 export function DesignProgress({ className, radius = 'sm', ...props }: DesignProgressProps): JSX.Element {
-  const rootClassName = className ? `tc-design-progress ${className}` : 'tc-design-progress'
+  const rootClassName = cn(
+    'tc-design-progress',
+    className,
+  )
 
   return <Progress {...props} className={rootClassName} radius={radius} />
 }

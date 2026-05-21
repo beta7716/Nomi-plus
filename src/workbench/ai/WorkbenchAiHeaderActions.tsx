@@ -1,5 +1,6 @@
 import { IconPlugConnected, IconPlus } from '@tabler/icons-react'
 import { WorkbenchIconButton } from '../../design'
+import { cn } from '../../utils/cn'
 
 export type WorkbenchAiHeaderActionsProps = {
   className?: string
@@ -14,21 +15,16 @@ export function WorkbenchAiHeaderActions({
   onModelIntegration,
   onNewConversation,
 }: WorkbenchAiHeaderActionsProps): JSX.Element {
-  const rootClassName = className ? `workbench-ai-header-actions ${className}` : 'workbench-ai-header-actions'
-  const buttonClassName = actionClassName
-    ? `workbench-ai-header-actions__button ${actionClassName}`
-    : 'workbench-ai-header-actions__button'
-
   return (
-    <div className={rootClassName}>
+    <div className={cn('workbench-ai-header-actions inline-flex items-center flex-nowrap gap-1.5', className)}>
       <WorkbenchIconButton
-        className={buttonClassName}
+        className={cn('workbench-ai-header-actions__button', actionClassName)}
         label="模型接入"
         onClick={onModelIntegration}
         icon={<IconPlugConnected size={14} />}
       />
       <WorkbenchIconButton
-        className={buttonClassName}
+        className={cn('workbench-ai-header-actions__button', actionClassName)}
         label="新对话"
         onClick={onNewConversation}
         icon={<IconPlus size={14} />}

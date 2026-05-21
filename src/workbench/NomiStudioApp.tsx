@@ -14,6 +14,7 @@ import {
 import { createWorkbenchProjectPersistenceService } from './project/projectPersistenceService'
 import { useWorkspaceEvents } from './useWorkspaceEvents'
 import { DesignDrawer } from '../design'
+import { cn } from '../utils/cn'
 import { toast } from '../ui/toast'
 import { setDesktopActiveProjectId } from '../desktop/activeProject'
 import { buildStudioUrl } from '../utils/appRoutes'
@@ -184,13 +185,13 @@ export default function NomiStudioApp(): JSX.Element {
           onDeleteProject={deleteProject}
           onNewProject={() => void newProject()}
         />
-        <ToastHost className="nomi-studio-app__toast-host" />
+        <ToastHost />
       </>
     )
   }
 
   return (
-    <div className="nomi-studio-app" aria-label="Nomi Studio">
+    <div className={cn('nomi-studio-app w-full h-screen min-h-0 bg-nomi-bg')} aria-label="Nomi Studio">
       <WorkbenchShell
         generation={<GenerationCanvas />}
         generationAiLayout={generationAiCollapsed ? 'overlay' : 'sidebar'}
@@ -199,7 +200,7 @@ export default function NomiStudioApp(): JSX.Element {
         onOpenModelCatalog={() => setModelCatalogOpened(true)}
       />
       <DesignDrawer
-        className="nomi-model-catalog-drawer"
+        className={cn('nomi-model-catalog-drawer')}
         opened={modelCatalogOpened}
         onClose={() => setModelCatalogOpened(false)}
         position="right"
@@ -207,9 +208,9 @@ export default function NomiStudioApp(): JSX.Element {
         zIndex={4000}
         withinPortal
       >
-        <StatsModelCatalogManagement className="nomi-model-catalog-drawer__content" compact />
+        <StatsModelCatalogManagement className={cn('nomi-model-catalog-drawer__content')} compact />
       </DesignDrawer>
-      <ToastHost className="nomi-studio-app__toast-host" />
+      <ToastHost />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { toast, upsertModelCatalogVendor } from '../deps'
 import { AUTH_TYPE_OPTIONS } from '../modelCatalog.constants'
 import { prettyJson, safeParseJson } from '../modelCatalog.utils'
 import { DesignButton, DesignModal, DesignSelect, DesignSwitch, DesignTextInput, DesignTextarea } from '../../../../../design'
+import { cn } from '../../../../../utils/cn'
 
 export type VendorEditorState = { mode: 'create' } | { mode: 'edit'; vendor: ModelCatalogVendorDto }
 
@@ -105,33 +106,32 @@ export function VendorEditModal({
   }, [onClose, onSaved, submitting, vendorAuthHeader, vendorAuthQueryParam, vendorAuthType, vendorBaseUrlHint, vendorEnabled, vendorKey, vendorMeta, vendorName])
 
   return (
-    <DesignModal className="stats-model-catalog-vendor-modal" opened={opened} onClose={onClose} title={isNew ? '新增厂商' : '编辑厂商'} size="md" radius="md" centered
+    <DesignModal className={cn('stats-model-catalog-vendor-modal')} opened={opened} onClose={onClose} title={isNew ? '新增厂商' : '编辑厂商'} size="md" radius="md" centered
         lockScroll={false}>
-      <Stack className="stats-model-catalog-vendor-form" gap="sm">
-        <DesignTextInput className="stats-model-catalog-vendor-form-key" label="Key（唯一）" placeholder="例如 openai / gemini / veo" value={vendorKey} onChange={(e) => setVendorKey(e.currentTarget.value)} disabled={!isNew} />
-        <DesignTextInput className="stats-model-catalog-vendor-form-name" label="名称" placeholder="显示名称" value={vendorName} onChange={(e) => setVendorName(e.currentTarget.value)} />
-        <DesignSwitch className="stats-model-catalog-vendor-form-enabled" checked={vendorEnabled} onChange={(e) => setVendorEnabled(e.currentTarget.checked)} label="启用" />
+      <Stack className={cn('stats-model-catalog-vendor-form')} gap="sm">
+        <DesignTextInput label="Key（唯一）" placeholder="例如 openai / gemini / veo" value={vendorKey} onChange={(e) => setVendorKey(e.currentTarget.value)} disabled={!isNew} />
+        <DesignTextInput label="名称" placeholder="显示名称" value={vendorName} onChange={(e) => setVendorName(e.currentTarget.value)} />
+        <DesignSwitch checked={vendorEnabled} onChange={(e) => setVendorEnabled(e.currentTarget.checked)} label="启用" />
         <DesignSelect
-          className="stats-model-catalog-vendor-form-auth"
           label="鉴权方式（提示用）"
           data={AUTH_TYPE_OPTIONS}
           value={vendorAuthType}
           onChange={(value) => setVendorAuthType(value === 'x-api-key' || value === 'query' || value === 'none' ? value : 'bearer')}
         />
-        <DesignTextInput className="stats-model-catalog-vendor-form-baseurl" label="BaseUrl Hint（可选）" placeholder="例如 https://api.openai.com" value={vendorBaseUrlHint} onChange={(e) => setVendorBaseUrlHint(e.currentTarget.value)} />
-        <DesignSwitch className="stats-model-catalog-vendor-form-advanced-toggle" checked={vendorAdvanced} onChange={(e) => setVendorAdvanced(e.currentTarget.checked)} label="显示高级设置" />
+        <DesignTextInput label="BaseUrl Hint（可选）" placeholder="例如 https://api.openai.com" value={vendorBaseUrlHint} onChange={(e) => setVendorBaseUrlHint(e.currentTarget.value)} />
+        <DesignSwitch checked={vendorAdvanced} onChange={(e) => setVendorAdvanced(e.currentTarget.checked)} label="显示高级设置" />
         {vendorAdvanced ? (
-          <Stack className="stats-model-catalog-vendor-form-advanced" gap="sm">
-            <Group className="stats-model-catalog-vendor-form-auth-extra" gap="sm" wrap="wrap" align="flex-end">
-              <DesignTextInput className="stats-model-catalog-vendor-form-auth-header" label="Auth Header（可选）" placeholder="例如 X-API-Key" value={vendorAuthHeader} onChange={(e) => setVendorAuthHeader(e.currentTarget.value)} w={220} />
-              <DesignTextInput className="stats-model-catalog-vendor-form-auth-query" label="Auth Query Param（可选）" placeholder="例如 api_key" value={vendorAuthQueryParam} onChange={(e) => setVendorAuthQueryParam(e.currentTarget.value)} w={220} />
+          <Stack className={cn('stats-model-catalog-vendor-form-advanced')} gap="sm">
+            <Group className={cn('stats-model-catalog-vendor-form-auth-extra flex-wrap items-end gap-3')} gap="sm" wrap="wrap" align="flex-end">
+              <DesignTextInput label="Auth Header（可选）" placeholder="例如 X-API-Key" value={vendorAuthHeader} onChange={(e) => setVendorAuthHeader(e.currentTarget.value)} w={220} />
+              <DesignTextInput label="Auth Query Param（可选）" placeholder="例如 api_key" value={vendorAuthQueryParam} onChange={(e) => setVendorAuthQueryParam(e.currentTarget.value)} w={220} />
             </Group>
-            <DesignTextarea className="stats-model-catalog-vendor-form-meta" label="meta（JSON，可选）" value={vendorMeta} onChange={(e) => setVendorMeta(e.currentTarget.value)} minRows={4} autosize />
+            <DesignTextarea label="meta（JSON，可选）" value={vendorMeta} onChange={(e) => setVendorMeta(e.currentTarget.value)} minRows={4} autosize />
           </Stack>
         ) : null}
-        <Group className="stats-model-catalog-vendor-form-actions" justify="flex-end" gap={8}>
-          <DesignButton className="stats-model-catalog-vendor-form-cancel" variant="subtle" onClick={onClose}>取消</DesignButton>
-          <DesignButton className="stats-model-catalog-vendor-form-save" onClick={() => void submitVendor()} loading={submitting}>
+        <Group className={cn('stats-model-catalog-vendor-form-actions justify-end gap-2')} justify="flex-end" gap={8}>
+          <DesignButton variant="subtle" onClick={onClose}>取消</DesignButton>
+          <DesignButton onClick={() => void submitVendor()} loading={submitting}>
             保存
           </DesignButton>
         </Group>

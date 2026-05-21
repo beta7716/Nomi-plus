@@ -1,5 +1,6 @@
 import React from 'react'
 import { IconGrid3x3, IconLayoutGrid, IconMaximize, IconUpload } from '@tabler/icons-react'
+import { cn } from '../../../../utils/cn'
 import type { GenerationCanvasNode } from '../../model/generationCanvasTypes'
 import { useWorkbenchStore } from '../../../workbenchStore'
 import { useGenerationCanvasStore } from '../../store/generationCanvasStore'
@@ -591,7 +592,12 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
 
   return (
     <article
-      className="generation-canvas-v2-node"
+      className={cn(
+        'generation-canvas-v2-node',
+        'absolute block p-0 border-0 rounded-none bg-transparent shadow-none',
+        'cursor-grab select-none touch-none overflow-visible',
+        'data-[selected=true]:z-[5]',
+      )}
       data-kind={node.kind}
       data-expanded={selected ? 'true' : 'false'}
       data-selected={selected ? 'true' : 'false'}
@@ -609,7 +615,14 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
       {!readOnly ? (
         <>
           <WorkbenchButton
-            className="generation-canvas-v2-node__handle generation-canvas-v2-node__handle--input"
+            className={cn(
+              'generation-canvas-v2-node__handle generation-canvas-v2-node__handle--input',
+              'absolute top-1/2 left-[-8px] w-4 h-4 p-0',
+              'border-2 border-workbench-surface-solid rounded-full',
+              'bg-workbench-muted-soft -translate-y-1/2 cursor-crosshair',
+              'opacity-0 transition-opacity duration-150',
+              'data-[active=true]:bg-workbench-accent data-[active=true]:opacity-100',
+            )}
             aria-label="连接到此节点"
             data-active={pendingConnectionSourceId && pendingConnectionSourceId !== node.id ? 'true' : 'false'}
             onClick={(event) => {
@@ -618,7 +631,14 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
             }}
           />
           <WorkbenchButton
-            className="generation-canvas-v2-node__handle generation-canvas-v2-node__handle--output"
+            className={cn(
+              'generation-canvas-v2-node__handle generation-canvas-v2-node__handle--output',
+              'absolute top-1/2 right-[-8px] w-4 h-4 p-0',
+              'border-2 border-workbench-surface-solid rounded-full',
+              'bg-workbench-muted-soft -translate-y-1/2 cursor-crosshair',
+              'opacity-0 transition-opacity duration-150',
+              'data-[active=true]:bg-workbench-accent data-[active=true]:opacity-100',
+            )}
             aria-label="从此节点开始连线"
             data-active={pendingConnectionSourceId === node.id ? 'true' : 'false'}
             onPointerDown={(event) => {
@@ -635,13 +655,25 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
 
       {node.kind === 'panorama' && selected && !readOnly && node.result?.url ? (
         <div
-          className="generation-canvas-v2-node__panorama-toolbar"
+          className={cn(
+            'generation-canvas-v2-node__panorama-toolbar',
+            'absolute left-1/2 bottom-[calc(100%+18px)] z-[12]',
+            'inline-flex items-center gap-1 min-h-[44px] py-[5px] px-2',
+            'border border-[rgba(18,24,38,0.08)] rounded-[14px]',
+            'bg-white/[0.96] shadow-[0_12px_34px_rgba(18,24,38,0.14)]',
+            '-translate-x-1/2 backdrop-blur-[12px]',
+          )}
           role="toolbar"
           aria-label="全景图操作"
           onPointerDown={(event) => event.stopPropagation()}
         >
           <button
-            className="generation-canvas-v2-node__panorama-toolbar-item"
+            className={cn(
+              'inline-flex items-center justify-center gap-[7px]',
+              'min-w-0 min-h-[34px] px-[11px] border-0 rounded-[9px]',
+              'bg-transparent text-nomi-ink-80 font-[inherit] text-[13px] leading-none whitespace-nowrap cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+            )}
             type="button"
             onClick={() => panoramaFullscreenRef.current?.()}
           >
@@ -649,7 +681,12 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
             <span>全景预览</span>
           </button>
           <button
-            className="generation-canvas-v2-node__panorama-toolbar-item generation-canvas-v2-node__panorama-toolbar-item--icon"
+            className={cn(
+              'inline-flex items-center justify-center',
+              'w-[34px] min-h-[34px] p-0 border-0 rounded-[9px]',
+              'bg-transparent text-nomi-ink-80 font-[inherit] text-[13px] leading-none cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+            )}
             type="button"
             aria-label="四视图截图"
             title="四视图截图"
@@ -657,24 +694,42 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
           >
             <IconLayoutGrid size={16} stroke={1.8} />
           </button>
-          <span className="generation-canvas-v2-node__panorama-toolbar-divider" />
-          <label className="generation-canvas-v2-node__panorama-toolbar-item">
+          <span className={cn('w-px h-[22px] bg-[rgba(18,24,38,0.1)]')} />
+          <label className={cn(
+            'inline-flex items-center justify-center gap-[7px]',
+            'min-w-0 min-h-[34px] px-[11px] border-0 rounded-[9px]',
+            'bg-transparent text-nomi-ink-80 font-[inherit] text-[13px] leading-none whitespace-nowrap cursor-pointer',
+            'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+          )}>
             <IconUpload size={16} stroke={1.8} />
             <span>重新上传</span>
-            <input type="file" accept="image/*" onChange={handlePanoramaFileChange} />
+            <input className="hidden" type="file" accept="image/*" onChange={handlePanoramaFileChange} />
           </label>
         </div>
       ) : null}
 
       {node.kind === 'image' && selected && !readOnly && node.result?.type === 'image' && node.result.url ? (
         <div
-          className="generation-canvas-v2-node__panorama-toolbar"
+          className={cn(
+            'generation-canvas-v2-node__panorama-toolbar',
+            'absolute left-1/2 bottom-[calc(100%+18px)] z-[12]',
+            'inline-flex items-center gap-1 min-h-[44px] py-[5px] px-2',
+            'border border-[rgba(18,24,38,0.08)] rounded-[14px]',
+            'bg-white/[0.96] shadow-[0_12px_34px_rgba(18,24,38,0.14)]',
+            '-translate-x-1/2 backdrop-blur-[12px]',
+          )}
           role="toolbar"
           aria-label="图片切图操作"
           onPointerDown={(event) => event.stopPropagation()}
         >
           <button
-            className="generation-canvas-v2-node__panorama-toolbar-item generation-canvas-v2-node__panorama-toolbar-item--icon"
+            className={cn(
+              'inline-flex items-center justify-center',
+              'w-[34px] min-h-[34px] p-0 border-0 rounded-[9px]',
+              'bg-transparent text-nomi-ink-80 font-[inherit] text-[13px] leading-none cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+              'disabled:opacity-[0.45] disabled:cursor-wait',
+            )}
             type="button"
             aria-label="2x2 切图"
             title="2x2 切图"
@@ -684,7 +739,13 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
             <IconLayoutGrid size={16} stroke={1.8} />
           </button>
           <button
-            className="generation-canvas-v2-node__panorama-toolbar-item generation-canvas-v2-node__panorama-toolbar-item--icon"
+            className={cn(
+              'inline-flex items-center justify-center',
+              'w-[34px] min-h-[34px] p-0 border-0 rounded-[9px]',
+              'bg-transparent text-nomi-ink-80 font-[inherit] text-[13px] leading-none cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+              'disabled:opacity-[0.45] disabled:cursor-wait',
+            )}
             type="button"
             aria-label="3x3 切图"
             title="3x3 切图"
@@ -696,9 +757,25 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
         </div>
       ) : null}
 
-      <header className="generation-canvas-v2-node__header">
+      <header className={cn(
+        'generation-canvas-v2-node__header',
+        'absolute top-[10px] left-[10px] right-[10px] z-[2]',
+        'flex items-center justify-start gap-2 min-h-0 p-0',
+        'pointer-events-auto cursor-grab',
+      )}>
         {showStatusBadge ? (
-          <span className="generation-canvas-v2-node__status" data-status={status}>{STATUS_LABEL[status] ?? status}</span>
+          <span
+            className={cn(
+              'text-[10.5px] font-medium tracking-[0.06em] uppercase',
+              'py-[3px] px-2 rounded-[4px] backdrop-blur-[8px]',
+              'bg-nomi-paper/[0.82] text-nomi-ink-60',
+              'data-[status=success]:text-workbench-success-ink data-[status=success]:bg-workbench-success-soft',
+              'data-[status=error]:text-workbench-danger data-[status=error]:bg-workbench-danger-soft',
+            )}
+            data-status={status}
+          >
+            {STATUS_LABEL[status] ?? status}
+          </span>
         ) : null}
       </header>
 
@@ -709,7 +786,12 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
       ) : null}
 
       <div
-        className="generation-canvas-v2-node__preview"
+        className={cn(
+          'generation-canvas-v2-node__preview',
+          'relative w-full h-full min-h-0 overflow-hidden',
+          'rounded-nomi shadow-nomi-md cursor-grab touch-none',
+          'bg-[repeating-linear-gradient(45deg,var(--nomi-ink-05)_0_10px,var(--nomi-ink-10)_10px_20px)]',
+        )}
         data-timeline-draggable={canSendToTimeline ? 'true' : 'false'}
         draggable={false}
       >
@@ -724,20 +806,27 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
               onScreenshot={handlePanoramaScreenshot}
             />
           ) : (
-            <div className="generation-canvas-v2-node__panorama-empty">
+            <div className={cn('flex w-full h-full items-center justify-center')}>
               <label
-                className="generation-canvas-v2-node__panorama-upload"
+                className={cn(
+                  'inline-flex items-center justify-center',
+                  'min-w-[156px] min-h-[48px] px-[18px]',
+                  'text-nomi-ink-60 text-[13px] cursor-pointer',
+                )}
                 onPointerDown={(event) => event.stopPropagation()}
               >
                 <span>+ 上传全景图</span>
-                <input type="file" accept="image/*" onChange={handlePanoramaFileChange} />
+                <input className="hidden" type="file" accept="image/*" onChange={handlePanoramaFileChange} />
               </label>
             </div>
           )
         ) : node.result?.url ? (
           node.result.type === 'video' ? (
             <video
-              className="generation-canvas-v2-node__media generation-canvas-v2-node__media--video"
+              className={cn(
+                'w-full h-full min-h-0 object-contain pointer-events-auto',
+                'bg-nomi-ink-05 select-none',
+              )}
               src={buildVideoPlaybackUrl(node.result.url)}
               crossOrigin="use-credentials"
               controls
@@ -755,7 +844,10 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
             />
           ) : (
             <img
-              className="generation-canvas-v2-node__media"
+              className={cn(
+                'w-full h-full min-h-0 object-contain pointer-events-none',
+                'bg-nomi-ink-05 select-none',
+              )}
               src={node.result.url}
               alt=""
               draggable={false}
@@ -765,7 +857,7 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
             />
           )
         ) : (
-          <div className="generation-canvas-v2-node__empty">
+          <div className={cn('flex w-full h-full items-center justify-center flex-col gap-1 text-nomi-ink-60')}>
             {selected ? null : <span style={{ fontSize: 11, opacity: 0.45, pointerEvents: 'none' }}>点击节点填写提示词</span>}
           </div>
         )}
@@ -773,22 +865,39 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
 
       {canSendToTimeline && !readOnly ? (
         <WorkbenchButton
-          className="generation-canvas-v2-node__timeline-drag"
+          className={cn(
+            'generation-canvas-v2-node__timeline-drag',
+            'absolute top-1/2 right-[-26px] z-[7]',
+            'inline-grid grid-rows-[repeat(3,1fr)] items-center justify-center gap-[3px]',
+            'w-[18px] h-[42px] m-0 py-2 px-[5px] border-0 rounded-full',
+            'bg-nomi-paper/[0.8] text-nomi-ink-50 font-[inherit]',
+            'cursor-grab backdrop-blur-[8px] shadow-nomi-sm',
+            'opacity-0 -translate-y-1/2 transition-[opacity,color,background] duration-150 ease-out',
+            'active:cursor-grabbing',
+            'hover:bg-nomi-paper hover:text-nomi-ink-80',
+          )}
           aria-label="拖到时间线"
           title="拖到时间线"
           draggable
           onDragStart={(event) => handleTimelineDragStart(event)}
           onPointerDown={(event) => event.stopPropagation()}
         >
-          <span className="generation-canvas-v2-node__timeline-drag-line" />
-          <span className="generation-canvas-v2-node__timeline-drag-line" />
-          <span className="generation-canvas-v2-node__timeline-drag-line" />
+          <span className={cn('block w-2 h-[1.5px] rounded-full bg-current')} />
+          <span className={cn('block w-2 h-[1.5px] rounded-full bg-current')} />
+          <span className={cn('block w-2 h-[1.5px] rounded-full bg-current')} />
         </WorkbenchButton>
       ) : null}
 
       {selected && !readOnly && node.kind !== 'panorama' ? (
         <div
-          className="generation-canvas-v2-node__composer"
+          className={cn(
+            'generation-canvas-v2-node__composer',
+            'absolute left-1/2 z-[8] flex flex-col gap-[6px]',
+            'min-h-[150px] p-[10px]',
+            'border border-nomi-line-soft rounded-nomi',
+            'bg-nomi-paper shadow-nomi-lg overflow-auto',
+            '-translate-x-1/2',
+          )}
           style={{
             width: composerLayout.width,
             maxHeight: composerLayout.maxHeight,
@@ -801,7 +910,12 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
                 <NodeParameterControls node={node} section="references" valueOnly />
               ) : null}
               <textarea
-                className="generation-canvas-v2-node__prompt-input"
+                className={cn(
+                  'generation-canvas-v2-node__prompt-input',
+                  'flex-1 w-full min-h-[38px] p-0 border-0 outline-0 resize-none',
+                  'bg-transparent text-nomi-ink font-[inherit] text-[12.5px] leading-[1.5]',
+                  'placeholder:text-nomi-ink-40',
+                )}
                 value={node.prompt}
                 rows={composerLayout.promptRows}
                 placeholder={
@@ -815,11 +929,17 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
                 onBlur={() => { void persistActiveWorkbenchProjectNow().catch(() => {}) }}
               />
               {status === 'error' && node.error ? (
-                <div className="generation-canvas-v2-node__error" role="alert">
+                <div
+                  className={cn(
+                    'py-[7px] px-[9px] rounded-nomi-sm',
+                    'bg-workbench-danger-soft text-workbench-danger text-[11.5px] leading-[1.35]',
+                  )}
+                  role="alert"
+                >
                   生成失败：{node.error}
                 </div>
               ) : null}
-              <div className="generation-canvas-v2-node__footer">
+              <div className={cn('flex items-center gap-1 mt-auto min-w-0 pt-1')}>
                 <NodeParameterControls node={node} section="parameters" valueOnly />
                 {(() => {
                   const disabledReason = !canGenerate && !isGenerating
@@ -832,7 +952,13 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
                   return (
                     <span title={disabledReason} style={{ display: 'contents' }}>
                       <WorkbenchButton
-                        className="generation-canvas-v2-node__generate"
+                        className={cn(
+                          'inline-flex items-center shrink-0 min-h-[24px] py-1 px-[10px]',
+                          'border-0 rounded-full bg-nomi-ink text-nomi-paper',
+                          'font-[inherit] text-[11px] font-medium whitespace-nowrap',
+                          'hover:enabled:bg-nomi-accent',
+                          'disabled:bg-nomi-ink-20 disabled:text-nomi-ink-40 disabled:cursor-not-allowed',
+                        )}
                         aria-label="生成素材"
                         disabled={!canGenerate}
                         onClick={handleGenerate}
@@ -849,7 +975,25 @@ export default function BaseGenerationNode({ node, selected, readOnly = false }:
       {selected && !readOnly ? RESIZE_DIRECTIONS.map((direction) => (
         <WorkbenchButton
           key={direction}
-          className={`generation-canvas-v2-node__resize-zone generation-canvas-v2-node__resize-zone--${direction}`}
+          className={cn(
+            'generation-canvas-v2-node__resize-zone',
+            `generation-canvas-v2-node__resize-zone--${direction}`,
+            'absolute z-[6] p-0 border-0 bg-transparent',
+            'focus-visible:outline-2 focus-visible:outline-nomi-accent focus-visible:outline-offset-2',
+            (direction === 'n' || direction === 's') && 'left-[10px] w-[calc(100%-20px)] h-[10px] cursor-ns-resize',
+            direction === 'n' && 'top-[-5px]',
+            direction === 's' && 'bottom-[-5px]',
+            (direction === 'e' || direction === 'w') && 'top-[10px] w-[10px] h-[calc(100%-20px)] cursor-ew-resize',
+            direction === 'e' && 'right-[-5px]',
+            direction === 'w' && 'left-[-5px]',
+            (direction === 'ne' || direction === 'nw' || direction === 'se' || direction === 'sw') && 'w-4 h-4',
+            (direction === 'ne' || direction === 'sw') && 'cursor-nesw-resize',
+            (direction === 'nw' || direction === 'se') && 'cursor-nwse-resize',
+            direction === 'ne' && 'top-[-8px] right-[-8px]',
+            direction === 'nw' && 'top-[-8px] left-[-8px]',
+            direction === 'se' && 'right-[-8px] bottom-[-8px]',
+            direction === 'sw' && 'bottom-[-8px] left-[-8px]',
+          )}
           aria-label={`从${direction}方向调整节点尺寸`}
           title="调整节点尺寸"
           onPointerDown={handleResizePointerDown(direction)}

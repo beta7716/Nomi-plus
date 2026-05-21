@@ -1,4 +1,5 @@
 import React from 'react'
+import { cn } from '../../utils/cn'
 import TimelinePanel from '../timeline/TimelinePanel'
 
 type GenerationWorkspaceProps = {
@@ -14,16 +15,31 @@ export default function GenerationWorkspace({
 }: GenerationWorkspaceProps): JSX.Element {
   return (
     <section
-      className="workbench-generation"
+      className={cn(
+        'workbench-generation',
+        'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_var(--workbench-timeline-height)]',
+        'w-full h-full overflow-hidden bg-[var(--workbench-bg)]',
+        aiSidebar && aiLayout === 'sidebar' && 'grid-cols-[minmax(0,1fr)_340px]',
+        aiSidebar && aiLayout === 'overlay' && 'relative grid-cols-[minmax(0,1fr)]',
+      )}
       data-has-ai={aiSidebar ? 'true' : 'false'}
       data-ai-layout={aiSidebar ? aiLayout : 'none'}
       aria-label="生成区"
     >
-      <div className="workbench-generation__canvas">
+      <div className={cn(
+        'workbench-generation__canvas',
+        'min-w-0 min-h-0 overflow-hidden border-b border-[var(--workbench-border)]',
+      )}>
         {canvas}
       </div>
       {aiSidebar ? (
-        <aside className="workbench-generation__ai" aria-label="生成区 AI 侧栏">
+        <aside className={cn(
+          'workbench-generation__ai',
+          'grid min-w-0 min-h-0 overflow-hidden border-b border-[var(--workbench-border)]',
+          aiLayout === 'overlay'
+            ? 'absolute top-4 right-4 z-[80] block w-auto h-auto border-0 bg-transparent pointer-events-auto'
+            : 'border-l border-l-[var(--workbench-border)] bg-[var(--workbench-surface)]',
+        )} aria-label="生成区 AI 侧栏">
           {aiSidebar}
         </aside>
       ) : null}

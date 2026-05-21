@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-react'
 import SelectionGeneratePopover from './SelectionGeneratePopover'
 import { WorkbenchIconButton } from '../../design'
+import { cn } from '../../utils/cn'
 import { useWorkbenchStore } from '../workbenchStore'
 import { useGenerationCanvasStore } from '../generationCanvasV2/store/generationCanvasStore'
 import { normalizeWorkbenchContentJson, type CreationDocumentTools } from '../workbenchTypes'
@@ -106,11 +107,26 @@ function WorkbenchEditorToolbar({ editor }: { editor: Editor | null }): JSX.Elem
   ]
 
   return (
-    <div className="workbench-editor-toolbar" aria-label="文本工具栏">
+    <div
+      className={cn(
+        'workbench-editor-toolbar',
+        'h-[44px] flex items-center gap-1 px-3',
+        'border-b border-workbench-border-soft bg-workbench-surface',
+      )}
+      aria-label="文本工具栏"
+    >
       {actions.map((action) => (
         <WorkbenchIconButton
           key={action.id}
-          className="workbench-editor-toolbar__button"
+          className={cn(
+            'workbench-editor-toolbar__button',
+            'w-[30px] h-[30px] inline-grid place-items-center',
+            'border border-transparent rounded-[7px]',
+            'bg-transparent text-workbench-muted cursor-pointer',
+            'hover:bg-workbench-hover',
+            'focus-visible:outline-2 focus-visible:outline-workbench-focus focus-visible:outline-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-[0.38]',
+          )}
           label={action.label}
           data-active={action.active ? 'true' : 'false'}
           disabled={action.disabled}
@@ -243,14 +259,27 @@ export default function WorkbenchEditor(): JSX.Element {
 
   return (
     <section
-      className="workbench-editor"
+      className={cn(
+        'workbench-editor',
+        'relative w-full h-full min-h-0',
+        'grid grid-rows-[44px_minmax(0,1fr)]',
+        'border border-workbench-border rounded-workbench',
+        'bg-workbench-surface-solid shadow-workbench-md',
+        'overflow-hidden',
+      )}
       aria-label="创作文档编辑区"
       onKeyDown={(event) => event.stopPropagation()}
       onKeyUp={(event) => event.stopPropagation()}
     >
       <WorkbenchEditorToolbar editor={editor} />
       <SelectionGeneratePopover editor={editor} selectedText={selectedText} onCreated={() => setSelectedText('')} />
-      <div ref={scrollRef} className="workbench-editor__scroll">
+      <div
+        ref={scrollRef}
+        className={cn(
+          'workbench-editor__scroll',
+          'min-w-0 min-h-0 overflow-auto',
+        )}
+      >
         <EditorContent editor={editor} />
       </div>
     </section>

@@ -2,6 +2,7 @@ import React from 'react'
 import { Divider, Group, Loader, Table, Text } from '@mantine/core'
 import { IconCopyPlus, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
 import { DesignButton, DesignSelect, DesignSwitch, DesignTextInput, IconActionButton } from '../../../../design'
+import { cn } from '../../../../utils/cn'
 import type { BillingModelKind, ModelCatalogModelDto } from './deps'
 import { EnabledBadge } from './ModelCatalogBadges'
 import { ModelCatalogTableFooter } from './ModelCatalogTableFooter'
@@ -84,19 +85,19 @@ export function ModelCatalogModelsSection({
 
   return (
     <>
-      <Divider className="stats-model-catalog-divider" label="模型（Model）" labelPosition="left" />
-      <Group className="stats-model-catalog-model-search" gap="sm" wrap="wrap" align="flex-end">
+      <Divider className={cn('stats-model-catalog-divider')} label="模型（Model）" labelPosition="left" />
+      <Group className={cn('stats-model-catalog-model-search flex-wrap items-end gap-3')} gap="sm" wrap="wrap" align="flex-end">
         <DesignTextInput
-          className="stats-model-catalog-model-search-keyword"
+          className={cn('stats-model-catalog-model-search-keyword')}
           label="模型名称"
           placeholder="搜索模型 Key / 别名 / 中文名"
           value={keywordInput}
           onChange={(event) => setKeywordInput(event.currentTarget.value)}
-          leftSection={<IconSearch className="stats-model-catalog-model-search-keyword-icon" size={14} />}
+          leftSection={<IconSearch size={14} />}
           w={300}
         />
         <DesignSelect
-          className="stats-model-catalog-model-search-kind"
+          className={cn('stats-model-catalog-model-search-kind')}
           label="模型类型"
           value={kindFilterInput}
           onChange={(value) => setKindFilterInput(((value as BillingModelKind | 'all' | null) || 'all'))}
@@ -104,7 +105,7 @@ export function ModelCatalogModelsSection({
           w={180}
         />
         <DesignSelect
-          className="stats-model-catalog-model-search-vendor"
+          className={cn('stats-model-catalog-model-search-vendor')}
           label="厂商"
           value={vendorFilterInput}
           onChange={(value) => setVendorFilterInput(value || 'all')}
@@ -113,91 +114,91 @@ export function ModelCatalogModelsSection({
           w={220}
         />
         <DesignSwitch
-          className="stats-model-catalog-model-search-capability"
+          className={cn('stats-model-catalog-model-search-capability')}
           checked={enabledCapabilityOnlyInput}
           onChange={(event) => setEnabledCapabilityOnlyInput(event.currentTarget.checked)}
           label="仅看已启用能力"
           mb={4}
         />
-        <Group className="stats-model-catalog-model-search-actions" gap={8} mb={4}>
-          <DesignButton className="stats-model-catalog-model-search-submit" size="xs" onClick={submitSearch}>
+        <Group className={cn('stats-model-catalog-model-search-actions')} gap={8} mb={4}>
+          <DesignButton className={cn('stats-model-catalog-model-search-submit')} size="xs" onClick={submitSearch}>
             查询
           </DesignButton>
-          <DesignButton className="stats-model-catalog-model-search-reset" size="xs" variant="subtle" onClick={resetSearch}>
+          <DesignButton className={cn('stats-model-catalog-model-search-reset')} size="xs" variant="subtle" onClick={resetSearch}>
             重置
           </DesignButton>
-          <DesignButton className="stats-model-catalog-model-create" size="xs" variant="light" leftSection={<IconPlus className="stats-model-catalog-model-create-icon" size={14} />} onClick={onCreateModel}>
+          <DesignButton className={cn('stats-model-catalog-model-create')} size="xs" variant="light" leftSection={<IconPlus size={14} />} onClick={onCreateModel}>
             新增模型
           </DesignButton>
         </Group>
       </Group>
 
-      <div className="stats-model-catalog-models-table-wrap" style={{ overflowX: 'auto' }}>
-        <Table className="stats-model-catalog-models-table" striped highlightOnHover withTableBorder withColumnBorders>
-          <Table.Thead className="stats-model-catalog-models-table-head">
-            <Table.Tr className="stats-model-catalog-models-table-head-row">
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 260 }}>模型 Key</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 220 }}>别名（Public）</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 220 }}>名称</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 140 }}>厂商</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 90 }}>类型</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 120 }}>价格</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 90 }}>状态</Table.Th>
-              <Table.Th className="stats-model-catalog-models-table-head-cell" style={{ width: 156 }}>操作</Table.Th>
+      <div className={cn('stats-model-catalog-models-table-wrap overflow-x-auto')}>
+        <Table className={cn('stats-model-catalog-models-table')} striped highlightOnHover withTableBorder withColumnBorders>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th style={{ width: 260 }}>模型 Key</Table.Th>
+              <Table.Th style={{ width: 220 }}>别名（Public）</Table.Th>
+              <Table.Th style={{ width: 220 }}>名称</Table.Th>
+              <Table.Th style={{ width: 140 }}>厂商</Table.Th>
+              <Table.Th style={{ width: 90 }}>类型</Table.Th>
+              <Table.Th style={{ width: 120 }}>价格</Table.Th>
+              <Table.Th style={{ width: 90 }}>状态</Table.Th>
+              <Table.Th style={{ width: 156 }}>操作</Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody className="stats-model-catalog-models-table-body">
+          <Table.Tbody>
             {loading && !models.length ? (
-              <Table.Tr className="stats-model-catalog-models-table-row-loading">
-                <Table.Td className="stats-model-catalog-models-table-cell" colSpan={8}>
-                  <Group className="stats-model-catalog-loading" gap="xs" align="center">
-                    <Loader className="stats-model-catalog-loading-icon" size="sm" />
-                    <Text className="stats-model-catalog-loading-text" size="sm" c="dimmed">加载中…</Text>
+              <Table.Tr>
+                <Table.Td colSpan={8}>
+                  <Group className={cn('stats-model-catalog-loading')} gap="xs" align="center">
+                    <Loader size="sm" />
+                    <Text size="sm" c="dimmed">加载中…</Text>
                   </Group>
                 </Table.Td>
               </Table.Tr>
             ) : !pagedModels.length ? (
-              <Table.Tr className="stats-model-catalog-models-table-row-empty">
-                <Table.Td className="stats-model-catalog-models-table-cell" colSpan={8}>
-                  <Text className="stats-model-catalog-empty" size="sm" c="dimmed">暂无模型</Text>
+              <Table.Tr>
+                <Table.Td colSpan={8}>
+                  <Text className={cn('stats-model-catalog-empty')} size="sm" c="dimmed">暂无模型</Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
               pagedModels.map((model) => (
-                <Table.Tr className="stats-model-catalog-models-table-row" key={`${model.vendorKey}:${model.modelKey}`}>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-key" size="sm" fw={600}>{model.modelKey}</Text>
+                <Table.Tr key={`${model.vendorKey}:${model.modelKey}`}>
+                  <Table.Td>
+                    <Text size="sm" fw={600}>{model.modelKey}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-alias" size="sm" c="dimmed">{String((model.modelAlias || '').trim() || String(model.modelKey || '').trim() || '—')}</Text>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">{String((model.modelAlias || '').trim() || String(model.modelKey || '').trim() || '—')}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-label" size="sm">{model.labelZh}</Text>
+                  <Table.Td>
+                    <Text size="sm">{model.labelZh}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-vendor" size="sm" c="dimmed">{formatVendor(model.vendorKey)}</Text>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">{formatVendor(model.vendorKey)}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-kind" size="sm">{formatKind(model.kind)}</Text>
+                  <Table.Td>
+                    <Text size="sm">{formatKind(model.kind)}</Text>
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Text className="stats-model-catalog-model-price" size="sm" fw={600}>
+                  <Table.Td>
+                    <Text size="sm" fw={600}>
                       {typeof model.pricing?.cost === 'number' ? Math.max(0, Math.floor(model.pricing.cost)) : defaultModelPricingCost(model.kind)}
                     </Text>
                     {!!model.pricing?.specCosts?.length && (
-                      <Text className="stats-model-catalog-model-price-specs" size="xs" c="dimmed">
+                      <Text size="xs" c="dimmed">
                         +{model.pricing.specCosts.length} 规格
                       </Text>
                     )}
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
+                  <Table.Td>
                     <EnabledBadge enabled={!!model.enabled} />
                   </Table.Td>
-                  <Table.Td className="stats-model-catalog-models-table-cell">
-                    <Group className="stats-model-catalog-model-row-actions" gap={6} justify="flex-end" wrap="nowrap">
-                      <DesignButton className="stats-model-catalog-model-edit" size="xs" variant="light" onClick={() => onEditModel(model)}>编辑</DesignButton>
-                      <IconActionButton className="stats-model-catalog-model-duplicate" size="sm" variant="light" aria-label="duplicate-model" onClick={() => onDuplicateModel(model)} icon={<IconCopyPlus className="stats-model-catalog-model-duplicate-icon" size={14} />} />
-                      <IconActionButton className="stats-model-catalog-model-delete" size="sm" variant="light" color="red" aria-label="delete-model" onClick={() => void onDeleteModel(model)} icon={<IconTrash className="stats-model-catalog-model-delete-icon" size={14} />} />
+                  <Table.Td>
+                    <Group className={cn('stats-model-catalog-model-row-actions flex-nowrap justify-end gap-1.5')} gap={6} justify="flex-end" wrap="nowrap">
+                      <DesignButton size="xs" variant="light" onClick={() => onEditModel(model)}>编辑</DesignButton>
+                      <IconActionButton size="sm" variant="light" aria-label="duplicate-model" onClick={() => onDuplicateModel(model)} icon={<IconCopyPlus size={14} />} />
+                      <IconActionButton size="sm" variant="light" color="red" aria-label="delete-model" onClick={() => void onDeleteModel(model)} icon={<IconTrash size={14} />} />
                     </Group>
                   </Table.Td>
                 </Table.Tr>

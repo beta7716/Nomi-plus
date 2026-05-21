@@ -1,6 +1,7 @@
 import { IconSend2, IconX } from '@tabler/icons-react'
 import { NomiAILabel, WorkbenchButton, WorkbenchIconButton } from '../../../design'
 import React from 'react'
+import { cn } from '../../../utils/cn'
 import { buildPlannedEdges, toCreateNodeInputs } from '../agent/generationCanvasAgentPlan'
 import { sendGenerationCanvasAgentMessage } from '../agent/generationCanvasAgentClient'
 import { generationCanvasTools } from '../agent/generationCanvasTools'
@@ -126,9 +127,23 @@ export default function CanvasAssistantPanel({
 
   if (collapsed) {
     return (
-      <aside className="generation-canvas-v2-assistant" data-collapsed="true" aria-label="生成区 AI 启动器">
+      <aside
+        className={cn(
+          'generation-canvas-v2-assistant',
+          'block w-auto h-auto rounded-full',
+        )}
+        data-collapsed="true"
+        aria-label="生成区 AI 启动器"
+      >
         <WorkbenchButton
-          className="generation-canvas-v2-assistant__launcher"
+          className={cn(
+            'generation-canvas-v2-assistant__launcher',
+            'inline-flex items-center gap-2 h-9 pl-[10px] pr-[14px]',
+            'border border-nomi-line rounded-full',
+            'bg-nomi-paper text-nomi-ink font-[inherit] text-[13px] font-medium',
+            'shadow-nomi-sm cursor-pointer',
+            'hover:shadow-nomi-md hover:-translate-y-px',
+          )}
           onClick={() => setCollapsed(false)}
         >
           <NomiAILabel markSize={18} wordSize={13} suffix="生成" />
@@ -138,38 +153,71 @@ export default function CanvasAssistantPanel({
   }
 
   return (
-    <aside className="generation-canvas-v2-assistant" data-collapsed="false" aria-label="生成区 AI 助手">
-      <header className="generation-canvas-v2-assistant__header">
-        <div className="generation-canvas-v2-assistant__title">
+    <aside
+      className={cn(
+        'generation-canvas-v2-assistant',
+        'grid grid-rows-[auto_minmax(0,1fr)_auto] w-[340px] h-full',
+        'max-h-none min-w-0 min-h-0 overflow-hidden',
+        'border-0 rounded-none bg-nomi-paper shadow-none',
+        'max-[900px]:w-[min(340px,calc(100vw-28px))]',
+        'max-[900px]:max-h-[calc(100vh-var(--workbench-topbar-height)-var(--workbench-timeline-height)-32px)]',
+        'max-[900px]:border max-[900px]:border-nomi-line max-[900px]:rounded-nomi max-[900px]:shadow-nomi-lg',
+      )}
+      data-collapsed="false"
+      aria-label="生成区 AI 助手"
+    >
+      <header className={cn(
+        'flex items-center justify-between gap-[10px]',
+        'min-h-[53px] px-4 py-[14px]',
+        'border-b border-nomi-line-soft bg-nomi-paper',
+      )}>
+        <div className={cn('flex items-center gap-2 min-w-0')}>
           <NomiAILabel suffix="生成" />
         </div>
-        <div className="generation-canvas-v2-assistant__header-actions">
+        <div className={cn('inline-flex items-center flex-nowrap gap-[6px] ml-auto')}>
           <WorkbenchAiHeaderActions
             className="generation-canvas-v2-assistant__shared-actions"
-            actionClassName="generation-canvas-v2-assistant__header-action"
+            actionClassName={cn(
+              'min-w-[26px] w-[26px] h-[26px] inline-grid place-items-center',
+              'p-0 border-0 rounded-nomi-sm bg-transparent',
+              'text-nomi-ink-60 font-[inherit] text-[12.5px] cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+            )}
             onModelIntegration={openWorkbenchModelIntegration}
             onNewConversation={handleNewConversation}
           />
           <WorkbenchIconButton
-            className="generation-canvas-v2-assistant__collapse"
+            className={cn(
+              'min-w-[26px] w-[26px] h-[26px] inline-grid place-items-center',
+              'p-0 border-0 rounded-nomi-sm bg-transparent',
+              'text-nomi-ink-60 font-[inherit] text-[12.5px] cursor-pointer',
+              'hover:bg-nomi-ink-05 hover:text-nomi-ink',
+            )}
             label="收起 AI"
             onClick={() => setCollapsed(true)}
             icon={<IconX size={14} />}
           />
         </div>
       </header>
-      <div className="generation-canvas-v2-assistant__body">
+      <div className={cn('flex flex-col gap-3 min-h-0 overflow-auto p-4')}>
         {messages.length === 0 ? (
-          <div className="generation-canvas-v2-assistant__empty">
-            <div className="generation-canvas-v2-assistant__empty-title">需要 AI 帮忙？</div>
-            <div className="generation-canvas-v2-assistant__empty-sub">
+          <div className={cn(
+            'flex flex-1 flex-col items-center justify-center gap-[10px]',
+            'max-w-[240px] mx-auto py-6 px-3 text-center',
+          )}>
+            <div className={cn('text-nomi-ink font-[Fraunces,Inter,serif] text-[17px] font-medium')}>需要 AI 帮忙？</div>
+            <div className={cn('text-nomi-ink-60 text-[13px] leading-[1.55]')}>
               告诉 AI 你想怎么改，它会写入待确认节点。
             </div>
-            <div className="generation-canvas-v2-assistant__suggestions">
+            <div className={cn('flex flex-col gap-[6px] w-full mt-2')}>
               {['把第一帧改成黄昏色调', '在末尾追加一帧', '整体风格统一为水彩'].map((suggestion) => (
                 <WorkbenchButton
                   key={suggestion}
-                  className="generation-canvas-v2-assistant__suggestion"
+                  className={cn(
+                    'min-h-[34px] py-2 px-3 border border-transparent rounded-nomi',
+                    'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-[12.5px] text-left cursor-pointer',
+                    'hover:border-nomi-line hover:bg-nomi-paper hover:text-nomi-ink',
+                  )}
                   onClick={() => setDraft(suggestion)}
                 >
                   {suggestion}
@@ -179,7 +227,17 @@ export default function CanvasAssistantPanel({
           </div>
         ) : (
           messages.map((message) => (
-            <div key={message.id} className="generation-canvas-v2-assistant__message" data-role={message.role}>
+            <div
+              key={message.id}
+              className={cn(
+                'relative max-w-[90%] py-[10px] px-[14px] rounded-nomi',
+                'bg-nomi-ink-05 text-nomi-ink text-[13.5px] leading-[1.55] whitespace-pre-wrap',
+                message.role === 'user' && 'self-end rounded-br-[4px] bg-nomi-ink text-nomi-paper',
+                message.role === 'assistant' && 'self-start rounded-bl-[4px]',
+                message.role === 'tool' && 'self-start bg-nomi-accent-soft text-nomi-accent',
+              )}
+              data-role={message.role}
+            >
               {message.content}
               {message.role !== 'user' ? (
                 <AiReplyActionButton
@@ -191,9 +249,16 @@ export default function CanvasAssistantPanel({
           ))
         )}
       </div>
-      <form className="generation-canvas-v2-assistant__composer" onSubmit={handleSubmit}>
+      <form
+        className={cn('grid gap-1 p-3 border-t border-nomi-line-soft bg-nomi-paper')}
+        onSubmit={handleSubmit}
+      >
         <textarea
-          className="generation-canvas-v2-assistant__input"
+          className={cn(
+            'w-full min-h-[40px] p-0 border-0 outline-0 resize-none',
+            'bg-transparent text-nomi-ink font-[inherit] text-[13.5px] leading-[1.45]',
+            'placeholder:text-nomi-ink-40',
+          )}
           aria-label="给生成助手发送消息"
           rows={1}
           placeholder="输入你的设计需求..."
@@ -204,10 +269,15 @@ export default function CanvasAssistantPanel({
           })}
           disabled={busy}
         />
-        <div className="generation-canvas-v2-assistant__composer-row">
-          <label className="generation-canvas-v2-assistant__mode">
-            <span>模式</span>
+        <div className={cn('flex items-center justify-between gap-3')}>
+          <label className={cn('flex items-center gap-[6px]')}>
+            <span className={cn('text-nomi-ink-40 text-[11.5px]')}>模式</span>
             <select
+              className={cn(
+                'h-[25px] px-[6px] py-[3px]',
+                'border border-nomi-line-soft rounded-nomi-sm outline-0',
+                'bg-nomi-ink-05 text-nomi-ink-80 font-[inherit] text-xs',
+              )}
               aria-label="AI 模式"
               value={mode}
               onChange={(event) => setMode(event.currentTarget.value as 'agent' | 'chat' | 'refine')}
@@ -219,7 +289,12 @@ export default function CanvasAssistantPanel({
           </label>
           <WorkbenchIconButton
             type="submit"
-            className="generation-canvas-v2-assistant__send"
+            className={cn(
+              'w-[30px] h-[30px] grid place-items-center',
+              'border-0 rounded-full bg-nomi-ink text-nomi-paper cursor-pointer',
+              'hover:enabled:bg-nomi-accent',
+              'disabled:bg-nomi-ink-20 disabled:text-nomi-ink-40 disabled:cursor-not-allowed',
+            )}
             disabled={busy || !draft.trim()}
             label="发送"
             aria-label="生成 AI 发送"

@@ -3,6 +3,7 @@ import './workbench.css'
 import './workbench-ai.css'
 import NomiAppBar from './nomi/NomiAppBar'
 import { isWorkspaceMode, useWorkbenchStore, type WorkspaceMode } from './workbenchStore'
+import { cn } from '../utils/cn'
 
 const CreationWorkspace = React.lazy(() => import('./creation/CreationWorkspace'))
 const GenerationWorkspace = React.lazy(() => import('./generation/GenerationWorkspace'))
@@ -72,7 +73,16 @@ export default function WorkbenchShell({ generation, generationAi, generationAiL
   }, [setWorkspaceMode])
 
   return (
-    <div className="workbench-shell" data-workspace-mode={workspaceMode}>
+    <div
+      className={cn(
+        'workbench-shell',
+        'grid grid-rows-[var(--workbench-topbar-height)_minmax(0,1fr)]',
+        'w-full h-full min-h-0',
+        'bg-workbench-bg text-workbench-ink',
+        'font-nomi-sans [font-feature-settings:"cv02","cv03","cv04","tnum"]',
+      )}
+      data-workspace-mode={workspaceMode}
+    >
       <NomiAppBar
         workspaceMode={workspaceMode}
         onWorkspaceModeChange={handleWorkspaceModeChange}
@@ -80,15 +90,18 @@ export default function WorkbenchShell({ generation, generationAi, generationAiL
         onOpenModelCatalog={onOpenModelCatalog}
       />
 
-      <main className="workbench-shell__body">
-        <React.Suspense fallback={<div className="workbench-shell__loading" aria-label="工作区加载中" />}>
-          <div className="workbench-shell__workspace" hidden={workspaceMode !== 'creation'}>
+      <main className={cn(
+        'workbench-shell__body',
+        'relative min-w-0 min-h-0 overflow-hidden',
+      )}>
+        <React.Suspense fallback={<div className={cn('workbench-shell__loading', 'w-full h-full bg-workbench-bg')} aria-label="工作区加载中" />}>
+          <div className={cn('workbench-shell__workspace', 'w-full h-full min-w-0 min-h-0')} hidden={workspaceMode !== 'creation'}>
             <CreationWorkspace />
           </div>
-          <div className="workbench-shell__workspace" hidden={workspaceMode !== 'generation'}>
+          <div className={cn('workbench-shell__workspace', 'w-full h-full min-w-0 min-h-0')} hidden={workspaceMode !== 'generation'}>
             <GenerationWorkspace canvas={generation} aiSidebar={generationAi} aiLayout={generationAiLayout} />
           </div>
-          <div className="workbench-shell__workspace" hidden={workspaceMode !== 'preview'}>
+          <div className={cn('workbench-shell__workspace', 'w-full h-full min-w-0 min-h-0')} hidden={workspaceMode !== 'preview'}>
             <PreviewWorkspace />
           </div>
         </React.Suspense>

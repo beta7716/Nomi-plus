@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { cn } from '../utils/cn'
 
 type NomiBrandProps = {
   markSize?: number
@@ -33,22 +34,22 @@ export function NomiBrand({ markSize = 26, wordSize = 17, className }: NomiBrand
   const rx = Math.round((markSize / 28) * 7)
 
   return (
-    <div className={`nomi-brand${className ? ` ${className}` : ''}`} aria-label="Nomi">
+    <div className={cn('nomi-brand', 'inline-flex items-center gap-2 shrink-0', className)} aria-label="Nomi">
       <svg
         width={markSize}
         height={markSize}
         viewBox="0 0 28 28"
         fill="none"
         aria-hidden="true"
-        style={{ flexShrink: 0 }}
+        className="shrink-0"
       >
         <rect width="28" height="28" rx={rx} fill="oklch(0.22 0.01 80)" />
         <rect x="5.5" y="5.5" width="4" height="17" rx="1.2" fill="white" />
         <rect x="18.5" y="5.5" width="4" height="17" rx="1.2" fill="white" />
         <polygon points="9.5,5.5 13.5,5.5 18.5,22.5 14.5,22.5" fill="white" />
       </svg>
-      <span className="nomi-brand__word" style={{ fontSize: wordSize }} aria-hidden="true">
-        No<span className="nomi-brand__accent">m</span>i
+      <span className={cn('nomi-brand__word', 'font-nomi-display font-normal tracking-[-0.02em] text-nomi-ink leading-none')} style={{ fontSize: wordSize }} aria-hidden="true">
+        No<span className={cn('nomi-brand__accent', 'text-nomi-accent')}>m</span>i
       </span>
     </div>
   )
@@ -62,7 +63,7 @@ export function NomiLogoMark({ size = 24, className }: NomiLogoMarkProps): JSX.E
       viewBox="0 0 28 28"
       fill="none"
       aria-hidden="true"
-      className={className}
+      className={cn('nomi-logo-mark', 'block shrink-0', className)}
     >
       <rect width="28" height="28" rx="7" fill="oklch(0.22 0.01 80)" />
       <rect x="5.5" y="5.5" width="4" height="17" rx="1.2" fill="white" />
@@ -75,23 +76,23 @@ export function NomiLogoMark({ size = 24, className }: NomiLogoMarkProps): JSX.E
 export function NomiLoadingMark({ size = 18, className, label = '加载中' }: NomiLoadingMarkProps): JSX.Element {
   return (
     <span
-      className={`nomi-loading-mark${className ? ` ${className}` : ''}`}
+      className={cn('nomi-loading-mark', 'inline-grid place-items-center flex-none leading-none animate-spin motion-reduce:animate-none', className)}
       aria-label={label}
       role="status"
-      style={{ '--nomi-loading-size': `${size}px` } as CSSProperties}
+      style={{ '--nomi-loading-size': `${size}px`, width: `${size}px`, height: `${size}px` } as CSSProperties}
     >
-      <NomiLogoMark size={size} className="nomi-loading-mark__logo" />
+      <NomiLogoMark size={size} className={cn('nomi-loading-mark__logo', 'block')} />
     </span>
   )
 }
 
 export function NomiAILabel({ markSize = 22, wordSize = 14, className, suffix = 'AI' }: NomiAILabelProps): JSX.Element {
   return (
-    <div className={`nomi-ai-label${className ? ` ${className}` : ''}`} aria-label={`Nomi ${suffix}`}>
+    <div className={cn('nomi-ai-label', 'inline-flex items-center gap-2 shrink-0', className)} aria-label={`Nomi ${suffix}`}>
       <NomiLogoMark size={markSize} />
-      <span className="nomi-ai-label__text" style={{ fontSize: wordSize }}>
-        No<span className="nomi-ai-label__accent">m</span>i
-        <span className="nomi-ai-label__suffix"> {suffix}</span>
+      <span className={cn('nomi-ai-label__text', 'font-nomi-display font-normal tracking-[-0.02em] text-nomi-ink leading-none')} style={{ fontSize: wordSize }}>
+        No<span className={cn('nomi-ai-label__accent', 'text-nomi-accent')}>m</span>i
+        <span className={cn('nomi-ai-label__suffix', 'text-nomi-ink-60 tracking-[-0.01em]')}> {suffix}</span>
       </span>
     </div>
   )
@@ -105,11 +106,17 @@ const NOMI_TABS: { mode: NomiStepperProps['value']; label: string }[] = [
 
 export function NomiStepper({ value, onChange }: NomiStepperProps): JSX.Element {
   return (
-    <nav className="nomi-stepper" aria-label="工作区切换">
+    <nav className={cn('nomi-stepper', 'inline-flex items-center gap-0.5 p-1 border border-nomi-line-soft rounded-full bg-[var(--nomi-ink-05)]')} aria-label="工作区切换">
       {NOMI_TABS.map((tab) => (
         <button
           key={tab.mode}
-          className="nomi-stepper__step"
+          className={cn(
+            'nomi-stepper__step',
+            'inline-flex items-center px-3.5 py-[5px] border-0 rounded-full bg-transparent text-nomi-ink-60 font-inherit text-[13px] font-medium cursor-pointer',
+            'transition-[background,color,box-shadow] ease-nomi-fast',
+            'hover:text-nomi-ink',
+            'data-[state=active]:bg-nomi-paper data-[state=active]:text-nomi-ink data-[state=active]:shadow-nomi-sm',
+          )}
           type="button"
           aria-current={value === tab.mode ? 'page' : undefined}
           data-state={value === tab.mode ? 'active' : 'idle'}

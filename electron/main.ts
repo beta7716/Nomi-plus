@@ -119,6 +119,7 @@ async function createWindow(): Promise<void> {
     minHeight: 720,
     backgroundColor: "#f6f3ee",
     title: "Nomi",
+    icon: path.join(__dirname, "../build/icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

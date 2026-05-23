@@ -16,6 +16,8 @@
     "dist": "electron-builder"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.12",
+    "@ai-sdk/openai-compatible": "^0.2.16",
     "@mantine/core": "^7.13.1",
     "@mantine/modals": "^7.13.1",
     "@mantine/notifications": "^7.13.1",
@@ -23,6 +25,7 @@
     "@tiptap/extension-placeholder": "^3.22.5",
     "@tiptap/react": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
+    "ai": "^4.3.19",
     "clsx": "^2.1.1",
     "framer-motion": "^12.39.0",
     "immer": "^11.1.8",
@@ -55,14 +58,38 @@
     "productName": "Nomi",
     "npmRebuild": false,
     "icon": "build/icon.png",
-    "files": ["dist/**", "dist-electron/**", "public/**"],
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "public/**"
+    ],
     "mac": {
-      "target": [{"target": "dmg", "arch": ["arm64"]}, {"target": "dmg", "arch": ["x64"]}],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "dmg",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/icon.png",
       "identity": null
     },
     "win": {
-      "target": [{"target": "nsis", "arch": ["x64"]}]
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,

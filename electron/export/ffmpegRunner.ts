@@ -71,6 +71,7 @@ function exportProfileFromLegacyOptions(options: TranscodeWebmFileToMp4Options):
     container: "mp4",
     videoCodec: "h264",
     audioCodec: "none",
+    audioMode: "mute",
     width: dimensions.width,
     height: dimensions.height,
     fps: Math.max(1, Math.floor(options.fps || 30)),

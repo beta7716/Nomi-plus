@@ -45,6 +45,7 @@ describe('buildRenderManifestRequest', () => {
       container: 'mp4',
       videoCodec: 'h264',
       audioCodec: 'none',
+      audioMode: 'mute',
       width: 1080,
       height: 1920,
       fps: 30,

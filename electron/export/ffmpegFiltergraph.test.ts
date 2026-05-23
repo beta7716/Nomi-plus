@@ -8,6 +8,7 @@ const profile: ExportProfile = {
   container: "mp4",
   videoCodec: "h264",
   audioCodec: "none",
+  audioMode: "mute",
   width: 1920,
   height: 1080,
   fps: 30,
@@ -161,7 +162,7 @@ describe("compileFfmpegFiltergraph", () => {
     try {
       compileFfmpegFiltergraph({
         manifest: manifest({
-          profile: { ...profile, audioCodec: "aac" },
+          profile: { ...profile, audioCodec: "aac", audioMode: "mixdown" },
           assets: {
             a1: { id: "a1", kind: "audio", absolutePath: "/media/a1.wav", durationSeconds: 10 },
             a2: { id: "a2", kind: "audio", absolutePath: "/media/a2.wav", durationSeconds: 10 },

@@ -34,7 +34,7 @@ function makeJob(): ExportJobSnapshot {
       projectId: "project-1",
       createdAt: "2026-05-24T00:00:00.000Z",
       timeline: { fps: 30, durationFrames: 30, range: { startFrame: 0, endFrame: 30 }, tracks: [] },
-      profile: { preset: "publish", container: "mp4", videoCodec: "h264", audioCodec: "aac", width: 1920, height: 1080, fps: 30, pixelFormat: "yuv420p", quality: "standard" },
+      profile: { preset: "publish", container: "mp4", videoCodec: "h264", audioCodec: "none", audioMode: "mute", width: 1920, height: 1080, fps: 30, pixelFormat: "yuv420p", quality: "standard" },
       assets: {},
     },
     status: "queued",

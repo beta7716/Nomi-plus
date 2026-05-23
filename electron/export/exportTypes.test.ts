@@ -28,6 +28,8 @@ describe("export domain types", () => {
       container: "mp4",
       videoCodec: "h264",
       audioCodec: "aac",
+      audioMode: "preserve-source",
+      audioBitrateKbps: 192,
       width: 1920,
       height: 1080,
       fps: 30,
@@ -42,6 +44,7 @@ describe("export domain types", () => {
       container: "webm",
       videoCodec: "vp9",
       audioCodec: "none",
+      audioMode: "mute",
       width: 1920,
       height: 1080,
       fps: 30,
@@ -54,11 +57,35 @@ describe("export domain types", () => {
       container: "mp4",
       videoCodec: "h264",
       audioCodec: "aac",
+      audioMode: "preserve-source",
       width: 0,
       height: 1080,
       fps: 30,
       pixelFormat: "yuv420p",
       quality: "standard",
     })).toBe(false);
+  });
+
+  it("validates audioMode and positive optional audioBitrateKbps", () => {
+    const baseProfile = {
+      preset: "publish",
+      container: "mp4",
+      videoCodec: "h264",
+      audioCodec: "none",
+      audioMode: "mute",
+      width: 1920,
+      height: 1080,
+      fps: 30,
+      pixelFormat: "yuv420p",
+      quality: "standard",
+    };
+
+    expect(isMp4ExportProfile(baseProfile)).toBe(true);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "preserve-source", audioCodec: "aac", audioBitrateKbps: 192 })).toBe(true);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "mixdown", audioCodec: "aac", audioBitrateKbps: 256 })).toBe(true);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "silent" })).toBe(false);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "preserve-source", audioCodec: "none" })).toBe(false);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "mixdown", audioCodec: "none" })).toBe(false);
+    expect(isMp4ExportProfile({ ...baseProfile, audioMode: "preserve-source", audioCodec: "aac", audioBitrateKbps: 0 })).toBe(false);
   });
 });

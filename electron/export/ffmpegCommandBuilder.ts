@@ -6,6 +6,7 @@ export type FfmpegTranscodePlan = {
   outputPath: string;
   profile: ExportProfile;
   noAudio: boolean;
+  sourceAudio?: { hasAudio: boolean; audioCodec?: string; durationSeconds?: number; sampleRate?: number; channels?: number };
   filtergraph?: FfmpegFiltergraphPlan;
   reportProgress?: boolean;
 };
@@ -26,6 +27,28 @@ function assertPositiveFiniteNumber(value: number, name: string): void {
   if (!Number.isFinite(value) || value <= 0) {
     throw new Error(`Invalid FFmpeg ${name}: ${value}`);
   }
+}
+
+function audioBitrateArg(profile: ExportProfile): string {
+  return `${profile.audioBitrateKbps ?? 192}k`;
+}
+
+function shouldMuteAudio(plan: FfmpegTranscodePlan): boolean {
+  return plan.noAudio || plan.profile.audioMode === "mute" || plan.profile.audioCodec === "none";
+}
+
+function assertSourceAudioMetadata(plan: FfmpegTranscodePlan): void {
+  const { sourceAudio } = plan;
+  if (sourceAudio?.hasAudio !== true || sourceAudio.audioCodec === undefined || sourceAudio.durationSeconds === undefined) {
+    throw new Error("preserve-source audio mode requires source audio metadata with hasAudio, audioCodec, and durationSeconds");
+  }
+}
+
+function pushAacArgs(args: string[], profile: ExportProfile): void {
+  if (profile.audioCodec !== "aac") {
+    throw new Error(`Unsupported FFmpeg audio codec for audio output: ${profile.audioCodec}`);
+  }
+  args.push("-c:a", "aac", "-b:a", audioBitrateArg(profile));
 }
 
 export function buildWebmToMp4Args(plan: FfmpegTranscodePlan): string[] {
@@ -52,8 +75,17 @@ export function buildWebmToMp4Args(plan: FfmpegTranscodePlan): string[] {
     }
 
     args.push("-filter_complex", plan.filtergraph.filterComplex, "-map", plan.filtergraph.videoOutputLabel);
-    if (plan.filtergraph.audioOutputLabel !== undefined && profile.audioCodec !== "none" && !plan.noAudio) {
-      args.push("-map", plan.filtergraph.audioOutputLabel);
+    const muteAudio = shouldMuteAudio(plan);
+    const audioOutputLabel = plan.filtergraph.audioOutputLabel;
+    const hasAudioOutputLabel = audioOutputLabel !== undefined;
+    if (profile.audioMode === "mixdown" && !muteAudio && !hasAudioOutputLabel) {
+      throw new Error("mixdown audio mode requires a filtergraph audio output label");
+    }
+    if (profile.audioMode === "preserve-source" && !muteAudio) {
+      throw new Error("preserve-source audio mode is unsupported with filtergraph plans; use mixdown audio output label");
+    }
+    if (audioOutputLabel !== undefined && !muteAudio) {
+      args.push("-map", audioOutputLabel as string);
     } else {
       args.push("-an");
     }
@@ -63,6 +95,11 @@ export function buildWebmToMp4Args(plan: FfmpegTranscodePlan): string[] {
       "-c:v", "libx264",
       "-preset", "medium",
       "-crf", QUALITY_CRF[profile.quality],
+    );
+    if (hasAudioOutputLabel && !muteAudio) {
+      pushAacArgs(args, profile);
+    }
+    args.push(
       "-movflags", "+faststart",
       outputPath,
     );
@@ -72,8 +109,13 @@ export function buildWebmToMp4Args(plan: FfmpegTranscodePlan): string[] {
 
   args.push("-i", inputPath);
 
-  if (profile.audioCodec === "none" || plan.noAudio) {
+  const muteAudio = shouldMuteAudio(plan);
+  if (muteAudio) {
     args.push("-an");
+  } else if (profile.audioMode === "preserve-source") {
+    assertSourceAudioMetadata(plan);
+  } else if (profile.audioMode === "mixdown") {
+    throw new Error("mixdown audio mode requires a filtergraph audio output label");
   }
 
   args.push(
@@ -82,6 +124,11 @@ export function buildWebmToMp4Args(plan: FfmpegTranscodePlan): string[] {
     "-c:v", "libx264",
     "-preset", "medium",
     "-crf", QUALITY_CRF[profile.quality],
+  );
+  if (!muteAudio) {
+    pushAacArgs(args, profile);
+  }
+  args.push(
     "-movflags", "+faststart",
     outputPath,
   );

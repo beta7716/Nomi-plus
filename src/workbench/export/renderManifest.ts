@@ -132,6 +132,7 @@ export function buildRenderManifestRequest(options: {
       container: 'mp4',
       videoCodec: 'h264',
       audioCodec: 'none',
+      audioMode: 'mute',
       width: dimensions.width,
       height: dimensions.height,
       fps: options.timeline.fps,

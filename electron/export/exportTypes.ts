@@ -2,6 +2,7 @@ export type ExportAspectRatio = "16:9" | "9:16" | "1:1" | "4:5" | "3:4" | "4:3" 
 export type ExportResolution = "720p" | "1080p" | "source";
 export type ExportQuality = "small" | "standard" | "high";
 export type ExportPreset = "publish" | "edit" | "share" | "webm";
+export type ExportAudioMode = "mute" | "preserve-source" | "mixdown";
 
 export type ExportJobStatus =
   | "queued"
@@ -22,6 +23,8 @@ export type ExportProfile = {
   container: "mp4";
   videoCodec: "h264";
   audioCodec: "aac" | "none";
+  audioMode: ExportAudioMode;
+  audioBitrateKbps?: number;
   width: number;
   height: number;
   fps: number;
@@ -46,6 +49,7 @@ export const EXPORT_STAGES: readonly ExportStage[] = ["preparing", "planning", "
 
 const PRODUCTION_PRESETS: readonly ExportProfile["preset"][] = ["publish", "edit", "share"];
 const AUDIO_CODECS: readonly ExportProfile["audioCodec"][] = ["aac", "none"];
+const AUDIO_MODES: readonly ExportAudioMode[] = ["mute", "preserve-source", "mixdown"];
 const EXPORT_QUALITIES: readonly ExportQuality[] = ["small", "standard", "high"];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -57,13 +61,23 @@ export function isMp4ExportProfile(value: unknown): value is ExportProfile {
     return false;
   }
 
-  const { width, height, fps } = value;
+  const { width, height, fps, audioBitrateKbps } = value;
+  const audioMode = value.audioMode as ExportAudioMode;
+  const audioCodec = value.audioCodec as ExportProfile["audioCodec"];
+  const hasValidBitrate =
+    audioBitrateKbps === undefined ||
+    (typeof audioBitrateKbps === "number" && Number.isFinite(audioBitrateKbps) && audioBitrateKbps > 0);
+  const hasValidAudioPairing =
+    audioMode === "mute" ? audioCodec === "none" || audioCodec === "aac" : audioCodec === "aac";
 
   return (
     PRODUCTION_PRESETS.includes(value.preset as ExportProfile["preset"]) &&
     value.container === "mp4" &&
     value.videoCodec === "h264" &&
-    AUDIO_CODECS.includes(value.audioCodec as ExportProfile["audioCodec"]) &&
+    AUDIO_CODECS.includes(audioCodec) &&
+    AUDIO_MODES.includes(audioMode) &&
+    hasValidAudioPairing &&
+    hasValidBitrate &&
     typeof width === "number" &&
     Number.isFinite(width) &&
     width > 0 &&

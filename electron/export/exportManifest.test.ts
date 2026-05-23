@@ -29,6 +29,8 @@ const validManifest = (): NomiRenderManifestV1 => ({
     container: "mp4",
     videoCodec: "h264",
     audioCodec: "aac",
+    audioMode: "preserve-source",
+    audioBitrateKbps: 192,
     width: 1920,
     height: 1080,
     fps: 30,
@@ -131,11 +133,28 @@ describe("Nomi render manifest v1", () => {
   it("accepts video asset with hasAudio true metadata and round-trips it through serialize/parse", () => {
     const manifest = validManifest();
     manifest.profile.audioCodec = "none";
+    manifest.profile.audioMode = "mute";
+    delete manifest.profile.audioBitrateKbps;
     manifest.assets["asset-1"].hasAudio = true;
 
     const parsed = parseManifestJson(serializeManifest(manifest));
 
     expect(parsed.assets["asset-1"].hasAudio).toBe(true);
     expect(parsed.profile.audioCodec).toBe("none");
+    expect(parsed.profile.audioMode).toBe("mute");
+  });
+
+  it("rejects invalid profile audio fields", () => {
+    const preserveWithoutAac = validManifest();
+    preserveWithoutAac.profile.audioCodec = "none";
+    expect(() => assertValidManifest(preserveWithoutAac)).toThrow(/profile/i);
+
+    const invalidBitrate = validManifest();
+    invalidBitrate.profile.audioBitrateKbps = -1;
+    expect(() => assertValidManifest(invalidBitrate)).toThrow(/profile/i);
+
+    const invalidMode = validManifest() as unknown as { profile: { audioMode: string } };
+    invalidMode.profile.audioMode = "silent";
+    expect(() => assertValidManifest(invalidMode)).toThrow(/profile/i);
   });
 });

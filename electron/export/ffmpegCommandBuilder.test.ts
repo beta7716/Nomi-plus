@@ -7,6 +7,7 @@ const standardProfile: ExportProfile = {
   container: "mp4",
   videoCodec: "h264",
   audioCodec: "none",
+  audioMode: "mute",
   width: 1920,
   height: 1080,
   fps: 30,
@@ -40,13 +41,34 @@ describe("buildWebmToMp4Args", () => {
     ]);
   });
 
-  it("emits -an when audioCodec is none or noAudio is true", () => {
-    expect(build({ audioCodec: "none" })).toContain("-an");
-    expect(build({ audioCodec: "aac" }, true)).toContain("-an");
+  it("emits -an when audioMode is mute, audioCodec is none, or noAudio is true", () => {
+    expect(build({ audioMode: "mute", audioCodec: "none" })).toContain("-an");
+    expect(build({ audioMode: "mute", audioCodec: "aac" })).toContain("-an");
+    expect(build({ audioMode: "preserve-source", audioCodec: "aac" }, true)).toContain("-an");
   });
 
-  it("does not emit -an when profile audioCodec is aac and noAudio is false", () => {
-    expect(build({ audioCodec: "aac" }, false)).not.toContain("-an");
+  it("emits AAC args for preserve-source when source audio metadata proves audio is available", () => {
+    const args = buildWebmToMp4Args({
+      inputPath: "/tmp/input.webm",
+      outputPath: "/tmp/output.partial.mp4",
+      profile: { ...standardProfile, audioMode: "preserve-source", audioCodec: "aac", audioBitrateKbps: 192 },
+      noAudio: false,
+      sourceAudio: { hasAudio: true, audioCodec: "opus", durationSeconds: 3 },
+    });
+
+    expect(args).not.toContain("-an");
+    expect(args.slice(args.indexOf("-c:a"), args.indexOf("-c:a") + 4)).toEqual(["-c:a", "aac", "-b:a", "192k"]);
+  });
+
+  it("fails clearly for preserve-source without source audio metadata", () => {
+    expect(() => build({ audioMode: "preserve-source", audioCodec: "aac" })).toThrow(/source audio metadata/i);
+    expect(() => buildWebmToMp4Args({
+      inputPath: "/tmp/input.webm",
+      outputPath: "/tmp/output.partial.mp4",
+      profile: { ...standardProfile, audioMode: "preserve-source", audioCodec: "aac" },
+      noAudio: false,
+      sourceAudio: { hasAudio: false, audioCodec: "opus", durationSeconds: 3 },
+    })).toThrow(/source audio metadata/i);
   });
 
   it("does not emit FFmpeg progress args by default", () => {
@@ -79,7 +101,7 @@ describe("buildWebmToMp4Args", () => {
     const args = buildWebmToMp4Args({
       inputPath: "/tmp/legacy-input.webm",
       outputPath: "/tmp/output.partial.mp4",
-      profile: { ...standardProfile, audioCodec: "aac" },
+      profile: { ...standardProfile, audioCodec: "aac", audioMode: "mixdown", audioBitrateKbps: 192 },
       noAudio: false,
       filtergraph: {
         inputs: [
@@ -99,7 +121,23 @@ describe("buildWebmToMp4Args", () => {
     expect(args).toContain("color=black:size=1920x1080:rate=30:duration=5[base];[base]format=yuv420p[vout];[1:a]adelay=1000|1000[aout]");
     expect(args).toContain("-map");
     expect(args.slice(args.indexOf("-filter_complex") + 2, args.indexOf("-filter_complex") + 6)).toEqual(["-map", "[vout]", "-map", "[aout]"]);
+    expect(args.slice(args.indexOf("-c:a"), args.indexOf("-c:a") + 4)).toEqual(["-c:a", "aac", "-b:a", "192k"]);
     expect(args).not.toContain("-vf");
     expect(args).not.toContain("/tmp/legacy-input.webm");
+  });
+
+  it("fails clearly when mixdown is requested without a filtergraph audio output label", () => {
+    expect(() => buildWebmToMp4Args({
+      inputPath: "/tmp/legacy-input.webm",
+      outputPath: "/tmp/output.partial.mp4",
+      profile: { ...standardProfile, audioCodec: "aac", audioMode: "mixdown" },
+      noAudio: false,
+      filtergraph: {
+        inputs: [{ assetId: "still", path: "/media/still.png", kind: "image", inputArgs: ["-loop", "1", "-t", "5"] }],
+        filterComplex: "color=black:size=1920x1080:rate=30:duration=5[base];[base]format=yuv420p[vout]",
+        videoOutputLabel: "[vout]",
+        warnings: [],
+      },
+    })).toThrow(/mixdown.*audio/i);
   });
 });

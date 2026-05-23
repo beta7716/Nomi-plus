@@ -103,4 +103,43 @@ describe('exportTimelineToMp4', () => {
     expect(cancel).not.toHaveBeenCalled()
     expect(downloadTimelineBlobMock).not.toHaveBeenCalled()
   })
+
+  it('starts the desktop job with a muted no-audio P0 default manifest profile', async () => {
+    const startJob = vi.fn().mockResolvedValue({ jobId: 'job-1' })
+    const writeTempInput = vi.fn().mockResolvedValue({ ok: true, size: 4 })
+    const finishTempInput = vi.fn().mockResolvedValue({
+      absolutePath: '/tmp/out.mp4',
+      relativePath: 'exports/out.mp4',
+      size: 4,
+    })
+    exportTimelineToWebmMock.mockResolvedValue(new Blob([new Uint8Array(4)], { type: 'video/webm' }))
+
+    vi.stubGlobal('window', {
+      nomiDesktop: {
+        exports: {
+          startJob,
+          writeTempInput,
+          finishTempInput,
+        },
+      },
+    })
+
+    const { exportTimelineToMp4 } = await import('./exportApi')
+
+    await exportTimelineToMp4({
+      projectId: 'project-1',
+      timeline: makeTimeline(),
+      aspectRatio: '16:9',
+    })
+
+    expect(startJob).toHaveBeenCalledWith(expect.objectContaining({
+      projectId: 'project-1',
+      manifest: expect.objectContaining({
+        profile: expect.objectContaining({
+          audioCodec: 'none',
+          audioMode: 'mute',
+        }),
+      }),
+    }))
+  })
 })

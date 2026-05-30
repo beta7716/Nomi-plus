@@ -435,6 +435,17 @@ function findSkillRecord(skillKey: string, skillName: string): SkillRecord | nul
   )) || null;
 }
 
+/**
+ * Universal language directive injected into every agent chat (v1 + v2),
+ * regardless of which area or skill triggered it. Single source of truth so we
+ * never have to repeat "reply in the user's language" in each prompt builder.
+ */
+const AGENT_LANGUAGE_DIRECTIVE = [
+  "语言规则（最高优先级，覆盖一切其他指令）：",
+  "始终用与用户相同的自然语言回复——用户用中文你就用中文，用英文就用英文，用日文就用日文。",
+  "永远不要因为本系统提示或某个 skill 是用中文/英文写的，就固定用那种语言；以用户最近一条消息的语言为准。",
+].join("\n");
+
 function buildSkillSystemPrompt(payload: JsonRecord): string {
   const requested = readRequestedSkill(payload);
   if (!requested.key && !requested.name) return "";
@@ -2524,8 +2535,9 @@ export async function runAgentChat(payload: unknown): Promise<unknown> {
   const userPrompt = trim(raw.prompt) || trim(raw.displayPrompt);
 
   // Compose system prompts into one (AI SDK `generateText` takes a single
-  // `system` string); fall back to undefined if both pieces are empty.
-  const systemParts = [systemPrompt, skillSystemPrompt].filter((part) => part && part.length > 0);
+  // `system` string). The language directive is always present, so `system`
+  // is never undefined.
+  const systemParts = [AGENT_LANGUAGE_DIRECTIVE, systemPrompt, skillSystemPrompt].filter((part) => part && part.length > 0);
   const system = systemParts.length > 0 ? systemParts.join("\n\n") : undefined;
 
   const providerKind: AiSdkProviderKind = vendor.providerKind || "openai-compatible";
@@ -2728,7 +2740,7 @@ export async function runAgentChatV2(
   const skillSystemPrompt = buildSkillSystemPrompt(payload as unknown as JsonRecord);
   const userPrompt = trim(payload.prompt) || trim(payload.displayPrompt);
 
-  const systemParts = [systemPrompt, skillSystemPrompt].filter((part) => part && part.length > 0);
+  const systemParts = [AGENT_LANGUAGE_DIRECTIVE, systemPrompt, skillSystemPrompt].filter((part) => part && part.length > 0);
   const system = systemParts.length > 0 ? systemParts.join("\n\n") : undefined;
 
   const providerKind: AiSdkProviderKind = vendor.providerKind || "openai-compatible";

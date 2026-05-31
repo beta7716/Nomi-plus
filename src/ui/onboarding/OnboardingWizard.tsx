@@ -104,11 +104,11 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
       unsubRef.current = bridge.onboarding.onEvent(trialId, ev => handleEvent(ev))
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      // Most common cause: missing agent env vars on this machine.
+      // Most common cause: no text model configured to read the docs.
       const isAgentMissing = /Onboarding agent not configured/.test(msg)
       setErrorReason(isAgentMissing ? '还没有配置用来阅读文档的 AI' : '没能启动')
       setErrorHint(isAgentMissing
-        ? '请先在系统设置里配置一个 LLM（如 Kimi、GPT-5），它会负责读文档。'
+        ? '请先在「模型设置」里添加一个文本模型（如 GPT、Kimi），它会负责读文档。'
         : msg)
       setPhase('error')
     }

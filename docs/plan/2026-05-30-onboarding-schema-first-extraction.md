@@ -148,6 +148,20 @@ v1 上线后真机重跑 kie GPT Image-2,仍 `partial`、参数只有 `aspect_ra
 
 9 文档扫描：8/9 命中结构化路径（OpenAPI/去水化/R2），Hailuo 走 curl。
 
+## 5g. 真根因：onboarding 不用 catalog 里已配的文本模型（同日，真机截图实证）
+
+用户重启后**仍**报"还没有配置用来阅读文档的 AI",但"模型设置"里明明有 **GPT-5.5（dm-fox）文本模型**。根因不是启动脚本——是**读文档的 onboarding agent 走的是一套独立的环境变量配置(`NOMI_ONBOARDING_AGENT_*`)，根本没去用用户在 catalog 里配的那个文本模型**。用户视角"我明明有 GPT",代码里是两套东西 → 断点。
+
+修法（通用、对分发友好、不依赖 env/.secrets）：
+
+- `runtime.ts` 新增 `resolveOnboardingAgentFromCatalog()`：从 catalog 找第一个 **enabled 的 text 模型** + 其 vendor(baseUrl/providerKind) + 解密后的 key，组装成 onboarding agent 配置。key 在 main 进程内解密、不外泄。
+- `main.ts` `nomi:onboarding:start` 的 agent 解析优先级改为：① `payload.agent`（Lab CLI 的 `--agent-*` 显式覆盖）→ ② **catalog 文本模型（产品主路径，dev/打包一致）** → ③ `NOMI_ONBOARDING_AGENT_*` env（仅 dev/headless/首启 bootstrap 兜底，无 UI）。
+- 报错文案改为引导"在「模型设置」里添加一个文本模型"。`OnboardingWizard` 提示同步。
+
+实证：用户 catalog = `gpt-5.5 / dm-fox`（text, enabled）+ dm-fox vendor（`https://dm-fox.rjj.cc/codex/v1`, openai-compatible, bearer, key 已存 safeStorage）。catalog 路径产出的 agent 配置与原 env 默认值**完全一致**（dm-fox gpt-5.5）——所以这就是用户期望的"用我配的那个 GPT 读文档"。**这也顺带解决了打包版**：打包 app 没有启动脚本/.secrets，但有 catalog → 现在能正常 onboarding。
+
+> Rule-1 说明：env 路径降为最低优先级、纯 bootstrap/headless 通道（无 UI、首启加第一个文本模型前需要它），不是用户可见的重复功能；payload.agent 是 Lab CLI 的合法编程入口（独立 code path）。catalog 是唯一产品来源。
+
 ## 6. 后续（不在本轮）
 
 - ~~把 spec-only 参数合并进请求 body 模板~~（已在 5d 完成）。

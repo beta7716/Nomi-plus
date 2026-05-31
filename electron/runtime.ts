@@ -1099,6 +1099,35 @@ export function listModelCatalogMappings(params?: unknown): Mapping[] {
   return filterByParams(readCatalog().mappings, params);
 }
 
+/**
+ * Resolve the onboarding doc-reader LLM from a configured **text** model in the
+ * catalog — i.e. the model the user already added (e.g. dm-fox GPT-5.5). This is
+ * the product source of truth: it works identically in dev and a packaged app,
+ * with no env vars / no `.secrets`. The key is decrypted here in main and never
+ * leaves the process. Returns null when no usable text model is configured (the
+ * caller then surfaces a "add a text model first" message). Bearer/none-auth
+ * vendors only — query/x-api-key auth isn't a chat-completions shape.
+ */
+export function resolveOnboardingAgentFromCatalog():
+  | { providerKind: AiSdkProviderKind; baseUrl: string; modelId: string; apiKey: string }
+  | null {
+  const state = readCatalog();
+  for (const model of state.models) {
+    if (model.kind !== "text" || !model.enabled) continue;
+    const vendor = state.vendors.find((v) => v.key === model.vendorKey && v.enabled);
+    if (!vendor || !vendor.baseUrlHint) continue;
+    const apiKey = decryptApiKeyRecord(state.apiKeysByVendor[vendor.key]);
+    if (!apiKey) continue;
+    return {
+      providerKind: normalizeProviderKind(vendor.providerKind),
+      baseUrl: vendor.baseUrlHint,
+      modelId: model.modelKey,
+      apiKey,
+    };
+  }
+  return null;
+}
+
 export function getModelCatalogHealth(): unknown {
   const state = readCatalog();
   const enabledVendors = state.vendors.filter((vendor) => vendor.enabled);

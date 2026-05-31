@@ -40,6 +40,7 @@ import {
   upsertModelCatalogVendorApiKey,
   clearModelCatalogVendorApiKey,
   commitOnboardedModelToCatalog,
+  resolveOnboardingAgentFromCatalog,
   readProjectCostSummary,
 } from "./runtime";
 import { runOnboardingTrial } from "./ai/onboarding/agent";
@@ -361,16 +362,25 @@ function registerOnboardingIpc(): void {
     if (!docsUrl) throw new Error("docsUrl required");
     if (!userApiKey) throw new Error("userApiKey required");
 
+    // The onboarding doc-reader LLM is resolved in this priority order:
+    //   1. payload.agent — explicit override (the Lab CLI passes --agent-* here).
+    //   2. a configured TEXT model in the catalog — the product path. This is the
+    //      model the user already added in 模型设置 (e.g. dm-fox GPT-5.5); it works
+    //      identically in dev and a packaged app, no env / no .secrets needed.
+    //   3. NOMI_ONBOARDING_AGENT_* env vars — dev/headless fallback only.
     const agentConfig = (payload?.agent || {}) as Record<string, unknown>;
+    const fromCatalog = resolveOnboardingAgentFromCatalog();
     const agent = {
-      providerKind: String(agentConfig.providerKind || process.env.NOMI_ONBOARDING_AGENT_PROVIDER || "openai-compatible") as ProviderKind,
-      baseUrl: String(agentConfig.baseUrl || process.env.NOMI_ONBOARDING_AGENT_BASE_URL || ""),
-      modelId: String(agentConfig.modelId || process.env.NOMI_ONBOARDING_AGENT_MODEL || ""),
-      apiKey: String(agentConfig.apiKey || process.env.NOMI_ONBOARDING_AGENT_KEY || ""),
+      providerKind: String(
+        agentConfig.providerKind || fromCatalog?.providerKind || process.env.NOMI_ONBOARDING_AGENT_PROVIDER || "openai-compatible",
+      ) as ProviderKind,
+      baseUrl: String(agentConfig.baseUrl || fromCatalog?.baseUrl || process.env.NOMI_ONBOARDING_AGENT_BASE_URL || ""),
+      modelId: String(agentConfig.modelId || fromCatalog?.modelId || process.env.NOMI_ONBOARDING_AGENT_MODEL || ""),
+      apiKey: String(agentConfig.apiKey || fromCatalog?.apiKey || process.env.NOMI_ONBOARDING_AGENT_KEY || ""),
     };
     if (!agent.baseUrl || !agent.modelId || !agent.apiKey) {
       throw new Error(
-        "Onboarding agent not configured. Set NOMI_ONBOARDING_AGENT_BASE_URL / MODEL / KEY env vars, or pass agent.{baseUrl,modelId,apiKey} in the payload.",
+        "Onboarding agent not configured. Add a text model (e.g. GPT/Kimi) in 模型设置 first — it will be used to read the docs.",
       );
     }
 

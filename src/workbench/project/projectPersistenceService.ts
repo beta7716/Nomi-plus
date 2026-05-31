@@ -1,5 +1,5 @@
 import { readLocalProject, saveLocalProject, type LocalProjectSummary } from '../library/localProjectStore'
-import { upgradeWorkbenchProjectMediaUrls } from './projectMediaMigration'
+import { upgradeWorkbenchProjectMediaUrls, normalizeLegacyImageAssetKinds } from './projectMediaMigration'
 import {
   clearActiveWorkbenchProjectSaveTarget,
   restoreWorkbenchProjectPayload,
@@ -93,7 +93,8 @@ export function createWorkbenchProjectPersistenceService(deps: Dependencies): Wo
     const mediaUpgraded = await upgradeWorkbenchProjectMediaUrls(project)
     const { record: catUpgraded, diagnostic } = migrateProjectRecord(mediaUpgraded)
     const { record: v60Upgraded } = migrateProjectV51ToV60(catUpgraded)
-    const upgraded = v60Upgraded
+    // A1.5：历史导入/切图/裁剪/截图的 image 节点改判为 asset（素材卡）。
+    const upgraded = normalizeLegacyImageAssetKinds(v60Upgraded)
     const changed = upgraded !== project
     if (!diagnostic.alreadyMigrated && (diagnostic.migratedNodes > 0 || diagnostic.removedNodes > 0 || diagnostic.categoriesSeeded)) {
       lastCategoryMigrationDiagnostic = diagnostic

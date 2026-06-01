@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<script>
+  // Mark for GSAP reveal-on-load. Only hides elements when motion is NOT reduced;
+  // if GSAP later fails to load, the closing script removes this class so nothing stays hidden.
+  if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('anim');
+  }
+</script>
 <title>Nomi — 本地优先的开源 AI 视频创作平台</title>
 <meta name="description" content="Nomi 是一个本地优先的开源 AI 视频创作工作台，把剧本、图片生成、视频生成、节点画布和时间轴剪辑放进同一条生产流。" />
 <meta name="keywords" content="Nomi, AI 视频创作, 开源 AI 视频工具, 本地优先, AI video editor, AI storyboard workflow, script to video, image to video, AI canvas" />
@@ -10,16 +17,23 @@
 <meta name="robots" content="index,follow,max-image-preview:large" />
 <meta name="theme-color" content="#F2EFE8" />
 <link rel="canonical" href="https://nomiaqm.com/" />
+<link rel="icon" type="image/svg+xml" href="/assets/nomi-logo.svg" />
+<link rel="apple-touch-icon" href="/assets/mascot.png" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://nomiaqm.com/" />
 <meta property="og:site_name" content="Nomi" />
+<meta property="og:locale" content="zh_CN" />
 <meta property="og:title" content="Nomi — 本地优先的开源 AI 视频创作平台" />
 <meta property="og:description" content="从剧本到图片、视频和时间轴剪辑，Nomi 让 AI 视频生产在同一张画布里自然流动。" />
 <meta property="og:image" content="https://nomiaqm.com/assets/mascot.png" />
+<meta property="og:image:width" content="666" />
+<meta property="og:image:height" content="660" />
+<meta property="og:image:alt" content="Nomi 折纸吉祥物" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Nomi — 本地优先的开源 AI 视频创作平台" />
 <meta name="twitter:description" content="开源、本地优先的一站式 AI 视频创作工作台。" />
 <meta name="twitter:image" content="https://nomiaqm.com/assets/mascot.png" />
+<meta name="twitter:image:alt" content="Nomi 折纸吉祥物" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -32,7 +46,35 @@
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
   "url": "https://nomiaqm.com/",
   "image": "https://nomiaqm.com/assets/mascot.png",
-  "softwareVersion": "0.8"
+  "screenshot": [
+    "https://nomiaqm.com/assets/screen-script.png",
+    "https://nomiaqm.com/assets/screen-canvas.png",
+    "https://nomiaqm.com/assets/screen-timeline.png"
+  ],
+  "softwareVersion": "0.8",
+  "inLanguage": "zh-CN",
+  "featureList": [
+    "剧本提示词一键生成图片 / 视频节点",
+    "无限节点画布编排镜头",
+    "时间轴剪辑导出成片",
+    "粘贴文档自动接入任意云端 AI 供应商",
+    "工程与素材本地存盘"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "Nomi",
+    "url": "https://github.com/aqm857886159/Nomi"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nomi",
+    "url": "https://github.com/aqm857886159/Nomi"
+  }
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +90,35 @@
     --rule: #D9D3C5;
     --coral: #E8765A;
     --coral-deep: #C7563D;
+  }
+  /* GSAP reveal: pre-hide animated blocks only when JS+motion are on (html.anim),
+     so there is no flash before the entrance animation runs. */
+  html.anim .hero-row,
+  html.anim .hero-foot > div,
+  html.anim .mascot-card,
+  html.anim .section-head,
+  html.anim .pillar-row,
+  html.anim .showcase-shot,
+  html.anim .philo-text > *,
+  html.anim .os-grid > div,
+  html.anim .repo-card,
+  html.anim .manifesto-quote,
+  html.anim .eq-line,
+  html.anim .eq-foot { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    /* Safety net: never keep content hidden for reduced-motion users. */
+    html.anim .hero-row,
+    html.anim .hero-foot > div,
+    html.anim .mascot-card,
+    html.anim .section-head,
+    html.anim .pillar-row,
+    html.anim .showcase-shot,
+    html.anim .philo-text > *,
+    html.anim .os-grid > div,
+    html.anim .repo-card,
+    html.anim .manifesto-quote,
+    html.anim .eq-line,
+    html.anim .eq-foot { opacity: 1 !important; }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--paper); color: var(--ink); }
@@ -896,7 +967,7 @@
             <span class="dot"></span> Nomi · 折纸·守护
           </div>
           <div class="mascot-tag-tr">EDITION / 001</div>
-          <img src="assets/mascot.png" alt="Nomi 折纸吉祥物">
+          <img src="assets/mascot.png" alt="Nomi 折纸吉祥物" width="666" height="660" fetchpriority="high" decoding="async">
           <!-- floating product readout overlay -->
           <div class="mascot-overlay">
             <div class="ov-row"><span class="ov-k">SCRIPT</span><span class="ov-v">折纸熊在白色背景前轻轻转身</span></div>
@@ -1057,7 +1128,7 @@
 
     <div class="showcase-stack">
       <div class="showcase-shot">
-        <img src="assets/screen-script.png" alt="剧本面板">
+        <img src="assets/screen-script.png" alt="Nomi 剧本面板：散文式草稿逐句生成镜头提示词" width="3834" height="1914" loading="lazy" decoding="async">
         <div class="showcase-caption">
           <div class="num">01</div>
           <div class="ttl">创作 / Script</div>
@@ -1065,7 +1136,7 @@
         </div>
       </div>
       <div class="showcase-shot">
-        <img src="assets/screen-canvas.png" alt="生成画布">
+        <img src="assets/screen-canvas.png" alt="Nomi 生成画布：图像与视频节点连成故事，Agent 在右侧待命" width="3834" height="1914" loading="lazy" decoding="async">
         <div class="showcase-caption">
           <div class="num">02</div>
           <div class="ttl">生成 / Canvas</div>
@@ -1073,7 +1144,7 @@
         </div>
       </div>
       <div class="showcase-shot">
-        <img src="assets/screen-timeline.png" alt="预览时间轴">
+        <img src="assets/screen-timeline.png" alt="Nomi 预览时间轴：所有节点拖入轨道剪辑导出成片" width="3834" height="1914" loading="lazy" decoding="async">
         <div class="showcase-caption">
           <div class="num">03</div>
           <div class="ttl">预览 / Timeline</div>
@@ -1214,6 +1285,54 @@
     </div>
   </div>
 </footer>
+
+<!-- GSAP (CDN, no build step). ScrollTrigger drives the scroll reveals. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  (function () {
+    var root = document.documentElement;
+    // If GSAP failed to load (offline / blocked CDN), undo the pre-hide so all
+    // content is visible. Same when motion is reduced (the 'anim' class is absent).
+    if (!window.gsap || !root.classList.contains('anim')) {
+      root.classList.remove('anim');
+      return;
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    var mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', function () {
+      // Hero entrance — fromTo (explicit), so it never reads the CSS-hidden state.
+      var tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.7 } });
+      tl.fromTo('.hero-row', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, stagger: 0.12 })
+        .fromTo('.mascot-card', { autoAlpha: 0, y: 30, scale: 0.98 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9 }, '-=0.5')
+        .fromTo('.hero-foot > div', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, stagger: 0.08 }, '-=0.5');
+
+      // Overlay progress bar fills to its 62% resting width.
+      gsap.fromTo('.ov-progress span', { width: '0%' }, { width: '62%', duration: 1.4, ease: 'power2.out', delay: 0.8 });
+
+      // Mascot drifts gently (loops). Targets the image, not the revealed card.
+      gsap.to('.mascot-card img', { y: -10, duration: 3, ease: 'sine.inOut', repeat: -1, yoyo: true });
+
+      // Scroll reveals — batched so items entering together animate as a group.
+      ScrollTrigger.batch(
+        '.section-head, .pillar-row, .showcase-shot, .philo-text > *, .os-grid > div, .repo-card, .manifesto-quote, .eq-line, .eq-foot',
+        {
+          start: 'top 85%',
+          once: true,
+          onEnter: function (batch) {
+            gsap.fromTo(batch,
+              { autoAlpha: 0, y: 28 },
+              { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.1, overwrite: true });
+          }
+        }
+      );
+
+      ScrollTrigger.refresh();
+    });
+  })();
+</script>
 
 </body>
 </html>

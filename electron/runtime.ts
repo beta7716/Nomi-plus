@@ -20,6 +20,10 @@ import {
   type CanvasToolName,
 } from "./ai/canvasTools";
 import {
+  documentTools,
+  type DocumentToolName,
+} from "./ai/documentTools";
+import {
   type AuthType,
   appendQueryParams,
   authHeaders as buildAuthHeaders,
@@ -2533,11 +2537,15 @@ export async function runAgentChat(payload: unknown): Promise<unknown> {
 // user confirms or rejects the proposed tool call.
 // ---------------------------------------------------------------------------
 
+// A tool call may target either the generation-canvas tool group or the
+// creation-document tool group; the engine picks the group by skillKey.
+export type AgentToolName = CanvasToolName | DocumentToolName;
+
 export type AgentChatV2Event =
   | { type: "content-delta"; delta: string }
-  | { type: "tool-call"; toolCallId: string; toolName: CanvasToolName; args: unknown }
-  | { type: "tool-result"; toolCallId: string; toolName: CanvasToolName; result: unknown }
-  | { type: "tool-error"; toolCallId: string; toolName: CanvasToolName; message: string }
+  | { type: "tool-call"; toolCallId: string; toolName: AgentToolName; args: unknown }
+  | { type: "tool-result"; toolCallId: string; toolName: AgentToolName; result: unknown }
+  | { type: "tool-error"; toolCallId: string; toolName: AgentToolName; message: string }
   | { type: "step-finish"; finishReason: string }
   | { type: "finish"; finishReason: string; usage?: unknown }
   | { type: "error"; message: string };
@@ -2556,47 +2564,58 @@ export type AgentChatV2Hooks = {
    */
   awaitToolConfirmation: (call: {
     toolCallId: string;
-    toolName: CanvasToolName;
+    toolName: AgentToolName;
     args: unknown;
   }) => Promise<AgentToolConfirmation>;
 };
 
+// Wraps a tool descriptor so every invocation routes through the
+// human-in-the-loop confirmation channel: emit `tool-call`, await the user's
+// decision, then emit `tool-result` / `tool-error` and feed a structured
+// result back to the model. Shared by both the canvas and document tool groups.
+function makeAgentTool<TParams extends z.ZodTypeAny>(
+  hooks: AgentChatV2Hooks,
+  toolName: AgentToolName,
+  description: string,
+  parameters: TParams,
+) {
+  return tool({
+    description,
+    parameters,
+    execute: async (args: unknown, opts: { toolCallId: string }) => {
+      hooks.emit({ type: "tool-call", toolCallId: opts.toolCallId, toolName, args });
+      const confirmation = await hooks.awaitToolConfirmation({
+        toolCallId: opts.toolCallId,
+        toolName,
+        args,
+      });
+      if (!confirmation.ok) {
+        hooks.emit({
+          type: "tool-error",
+          toolCallId: opts.toolCallId,
+          toolName,
+          message: confirmation.message,
+        });
+        // Surface as a structured tool result so the LLM can gracefully stop.
+        return { ok: false as const, error: confirmation.message };
+      }
+      hooks.emit({
+        type: "tool-result",
+        toolCallId: opts.toolCallId,
+        toolName,
+        result: confirmation.result,
+      });
+      return { ok: true as const, result: confirmation.result };
+    },
+  });
+}
+
 function buildCanvasToolsForV2(hooks: AgentChatV2Hooks) {
-  function makeTool<TParams extends z.ZodTypeAny>(
+  const makeTool = <TParams extends z.ZodTypeAny>(
     toolName: CanvasToolName,
     description: string,
     parameters: TParams,
-  ) {
-    return tool({
-      description,
-      parameters,
-      execute: async (args: unknown, opts: { toolCallId: string }) => {
-        hooks.emit({ type: "tool-call", toolCallId: opts.toolCallId, toolName, args });
-        const confirmation = await hooks.awaitToolConfirmation({
-          toolCallId: opts.toolCallId,
-          toolName,
-          args,
-        });
-        if (!confirmation.ok) {
-          hooks.emit({
-            type: "tool-error",
-            toolCallId: opts.toolCallId,
-            toolName,
-            message: confirmation.message,
-          });
-          // Surface as a structured tool result so the LLM can gracefully stop.
-          return { ok: false as const, error: confirmation.message };
-        }
-        hooks.emit({
-          type: "tool-result",
-          toolCallId: opts.toolCallId,
-          toolName,
-          result: confirmation.result,
-        });
-        return { ok: true as const, result: confirmation.result };
-      },
-    });
-  }
+  ) => makeAgentTool(hooks, toolName, description, parameters);
 
   return {
     read_canvas_state: makeTool(
@@ -2643,6 +2662,40 @@ function buildCanvasToolsForV2(hooks: AgentChatV2Hooks) {
   } as const;
 }
 
+// Creation-area document tools. We reuse the zod schemas + descriptions from
+// `documentTools` (the source of truth) but wrap each in the v2 confirmation
+// channel via `makeAgentTool`. read_* tools auto-confirm on the renderer; the
+// write tools (insert/replace/append) surface a confirmation card.
+function buildDocumentToolsForV2(hooks: AgentChatV2Hooks) {
+  const make = (name: DocumentToolName) =>
+    makeAgentTool(
+      hooks,
+      name,
+      documentTools[name].description ?? name,
+      documentTools[name].parameters as z.ZodTypeAny,
+    );
+
+  return {
+    read_full_text: make("read_full_text"),
+    read_selection: make("read_selection"),
+    insert_at_cursor: make("insert_at_cursor"),
+    replace_selection: make("replace_selection"),
+    append_to_end: make("append_to_end"),
+  } as const;
+}
+
+// Tool-group selector: creation-area skills (workbench.creation.*) get the
+// document tools; everything else (generation / storyboard / default) gets the
+// canvas tools. One engine, parameterized tool group.
+function buildToolsForSkill(skillKey: string | undefined, hooks: AgentChatV2Hooks) {
+  if (typeof skillKey === "string" && skillKey.startsWith("workbench.creation.")) {
+    return buildDocumentToolsForV2(hooks);
+  }
+  const { _kindSchema, ...canvasTools } = buildCanvasToolsForV2(hooks);
+  void _kindSchema;
+  return canvasTools;
+}
+
 export type RunAgentChatV2Payload = {
   prompt: string;
   displayPrompt?: string;
@@ -2679,12 +2732,12 @@ export async function runAgentChatV2(
     modelId: model.modelAlias || model.modelKey,
   });
 
-  // Strip the private `_kindSchema` slot before handing to the SDK — it's only
-  // used internally to keep the import live; the SDK only expects tool
-  // descriptors.
-  const allTools = buildCanvasToolsForV2(hooks);
-  const { _kindSchema, ...tools } = allTools;
-  void _kindSchema;
+  // Pick the tool group by skill: creation-area skills get document tools,
+  // everything else gets canvas tools. The canonical skill key lives in
+  // chatContext.skill.key; fall back to the top-level payload.skillKey.
+  const resolvedSkillKey =
+    readRequestedSkill(payload as unknown as JsonRecord).key || trim(payload.skillKey);
+  const tools = buildToolsForSkill(resolvedSkillKey, hooks);
 
   const result = streamText({
     model: languageModel,

@@ -1,16 +1,10 @@
-import type { AgentsChatResponseDto, AgentChatV2Session } from '../../../api/server'
-import { sendWorkbenchAiMessage } from '../../ai/workbenchAiClient'
+import type { AgentsChatResponseDto } from '../../../api/server'
+import { runWorkbenchAgent, type ToolCallEvent } from '../../ai/workbenchAgentRunner'
 import type { GenerationCanvasSnapshot, GenerationCanvasNode, GenerationNodeKind } from '../model/generationCanvasTypes'
 import { getAgentCreatableGenerationNodeKinds, getGenerationNodeDefaultTitle } from '../model/generationNodeKinds'
 import { generationCanvasTools, type CreateGenerationNodeToolInput } from './generationCanvasTools'
 
-export type ToolCallEvent = {
-  toolCallId: string
-  toolName: string
-  args: unknown
-  /** Resolve with the user's decision; main process feeds the result back to the model. */
-  confirm: (decision: { ok: true; result?: unknown } | { ok: false; message?: string }) => Promise<void>
-}
+export type { ToolCallEvent } from '../../ai/workbenchAgentRunner'
 
 type SendGenerationCanvasAgentMessageInput = {
   message: string
@@ -45,6 +39,15 @@ export type GenerationCanvasAgentResponse = {
 
 function stringifyForPrompt(value: unknown): string {
   return JSON.stringify(value, null, 2)
+}
+
+function readProjectIdParam(): string {
+  if (typeof window === 'undefined') return ''
+  try {
+    return String(new URL(window.location.href).searchParams.get('projectId') || '').trim()
+  } catch {
+    return ''
+  }
 }
 
 function buildGenerationCanvasAgentPrompt(input: SendGenerationCanvasAgentMessageInput): string {
@@ -175,46 +178,24 @@ export async function sendGenerationCanvasAgentMessage(
   const prompt = input.buildPrompt
     ? input.buildPrompt({ message: input.message, snapshot: input.snapshot, selectedNodes: input.selectedNodes })
     : buildGenerationCanvasAgentPrompt(input)
-  const request = {
+
+  const projectId = readProjectIdParam()
+  const response = await runWorkbenchAgent({
     prompt,
     displayPrompt: input.message,
-    sessionKey: 'nomi:generation:local',
-    projectId: '',
-    flowId: '',
-    projectName: '',
+    sessionKey: `nomi:workbench:${projectId || 'local'}`,
+    projectId,
     skillKey: input.skill?.key || 'workbench.generation.canvas-planner',
     skillName: input.skill?.name || '生成区节点规划',
-    mode: 'auto' as const,
-  }
-
-  let activeSession: AgentChatV2Session | null = null
-  const handlers = {
     onContent: input.onContent,
-    onSession: (session: AgentChatV2Session) => {
-      activeSession = session
-    },
-    onEvent: (event: { event: string; data: Record<string, unknown> | Record<string, never> }) => {
-      if (event.event === 'tool-call') {
-        const data = event.data as { toolCallId: string; toolName: string; args: unknown }
-        const toolCallEvent: ToolCallEvent = {
-          toolCallId: data.toolCallId,
-          toolName: data.toolName,
-          args: data.args,
-          confirm: async (decision) => {
-            if (!activeSession) return
-            await activeSession.confirmTool(data.toolCallId, decision)
-          },
-        }
-        if (input.onToolCall) {
-          input.onToolCall(toolCallEvent)
-        } else {
-          // No host UI provided — auto-execute on the renderer.
-          void defaultExecuteToolCall(toolCallEvent)
-        }
+    onToolCall: (event) => {
+      if (input.onToolCall) {
+        input.onToolCall(event)
+      } else {
+        // No host UI provided — auto-execute on the renderer.
+        void defaultExecuteToolCall(event)
       }
     },
-  }
-
-  const response = await sendWorkbenchAiMessage(request, handlers)
+  })
   return { response }
 }

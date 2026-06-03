@@ -63,4 +63,26 @@ describe('generationCanvasSchema Phase E.2 groups', () => {
     expect(parsed.derivedFrom).toBe('node-1')
     expect(() => generationCanvasNodeSchema.parse({ ...parsed, categoryId: 'legacy' })).toThrow()
   })
+
+  it('preserves Tiptap contentJson and accepts legacy nodes without it (C5)', () => {
+    const withDoc = generationCanvasNodeSchema.parse({
+      id: 'text-1',
+      kind: 'text',
+      title: '文本',
+      position: { x: 0, y: 0 },
+      categoryId: 'shots',
+      contentJson: { type: 'doc', content: [{ type: 'paragraph' }] },
+    })
+    expect(withDoc.contentJson).toEqual({ type: 'doc', content: [{ type: 'paragraph' }] })
+
+    // Legacy node without contentJson still parses; field stays undefined.
+    const legacy = generationCanvasNodeSchema.parse({
+      id: 'text-2',
+      kind: 'text',
+      title: '文本',
+      position: { x: 0, y: 0 },
+      categoryId: 'shots',
+    })
+    expect(legacy.contentJson).toBeUndefined()
+  })
 })

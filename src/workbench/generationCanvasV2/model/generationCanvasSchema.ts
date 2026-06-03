@@ -96,6 +96,9 @@ export const generationCanvasNodeSchema = z.object({
   renderKind: z
     .enum(['shot-frame', 'character-card', 'scene-card', 'prop-card', 'audio-strip'])
     .optional(),
+  // Phase C5: Tiptap document body for inline-editable text nodes. passthrough so
+  // unknown marks/attrs survive; optional so legacy nodes without it still parse.
+  contentJson: z.object({ type: z.literal('doc') }).passthrough().optional(),
 })
 
 export const nodeGroupSchema = z.object({

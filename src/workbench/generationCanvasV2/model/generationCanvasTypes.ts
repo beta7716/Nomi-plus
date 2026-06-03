@@ -82,6 +82,13 @@ export type GenerationNodeRunRecord = {
   durationSeconds?: number
 }
 
+/**
+ * Phase C5: Tiptap document JSON for inline-editable `text`-kind node bodies.
+ * Kept structurally loose so the canvas model doesn't couple to @tiptap types;
+ * consumers cast to JSONContent at the editor boundary.
+ */
+export type TiptapDocJson = { type: 'doc'; content?: unknown[] }
+
 export type GenerationCanvasNode = {
   id: string
   kind: GenerationNodeKind
@@ -129,6 +136,8 @@ export type GenerationCanvasNode = {
    * 新建节点时按 category.defaultNodeRenderKind 写入。可选，缺省时按 categoryId 推断。
    */
   renderKind?: NodeRenderKind
+  /** Phase C5: rich-text document body for inline-editable `text` nodes (Tiptap JSON). */
+  contentJson?: TiptapDocJson
 }
 
 export type NodeGroup = {

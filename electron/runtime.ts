@@ -381,6 +381,7 @@ function extractAssetUrl(raw: unknown): string {
     record.video_url,
     record.image_url,
     record.output,
+    record.remixed_from_video_id,
     (record.data as JsonRecord[] | undefined)?.[0]?.url,
     (record.data as JsonRecord[] | undefined)?.[0]?.b64_json ? `data:image/png;base64,${(record.data as JsonRecord[])[0].b64_json}` : "",
     (record.images as JsonRecord[] | undefined)?.[0]?.url,
@@ -609,7 +610,7 @@ export async function runTask(payload: unknown): Promise<TaskResult> {
   // 路径 B 文本任务走 AI SDK（引擎在 textTaskRunner）；逐字流式由 runTextTaskStream 消费。
   if (wantedKind === "text") return executeTextTask({ vendor, model, apiKey, kind, request, taskId });
 
-  const suffix = wantedKind === "video" ? "/v1/videos/generations" : "/v1/images/generations";
+  const suffix = wantedKind === "video" ? "/videos" : "/v1/images/generations";
   // S8 指纹缓存(fallback 路径同语义)。
   const fallbackRecipe = buildNormalizedRecipe({ vendor, model, request });
   const fallbackFingerprint = recipeFingerprint(fallbackRecipe);
@@ -624,18 +625,52 @@ export async function runTask(payload: unknown): Promise<TaskResult> {
     ...authHeaders(vendor, apiKey),
     ...(fallbackExtraHeaders || {}),
   };
-  const providerResponse = await requestJson(vendor, apiKey, "POST", endpoint(vendor, suffix), fallbackHeaders, {}, {
+  let providerResponse: unknown = await requestJson(vendor, apiKey, "POST", endpoint(vendor, suffix), fallbackHeaders, {}, {
     model: model.modelAlias || model.modelKey,
     prompt: request.prompt,
     size: request.width && request.height ? `${request.width}x${request.height}` : undefined,
     seed: request.seed,
     n: 1,
-    response_format: "url",
     extras: request.extras,
   });
-  const assetUrl = extractAssetUrl(providerResponse);
+  let assetUrl = extractAssetUrl(providerResponse);
   const upstreamTaskId = extractTaskIdShared(providerResponse) || taskId;
   traceVendorRequested(projectId, { runId: upstreamTaskId, nodeId, recipe: fallbackRecipe });
+  
+  // 视频生成是异步任务，需要轮询查询状态
+  if (!assetUrl && wantedKind === "video" && upstreamTaskId) {
+    const queryEndpoint = endpoint(vendor, `/videos/${upstreamTaskId}`);
+    const maxAttempts = 120; // 最多轮询 120 次（10 分钟）
+    const pollInterval = 5000; // 每 5 秒轮询一次
+    
+    console.log(`[Video Polling] Starting poll for task ${upstreamTaskId}, endpoint: ${queryEndpoint}`);
+    
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      
+      const queryResponse = await requestJson(vendor, apiKey, "GET", queryEndpoint, fallbackHeaders, {}, {});
+      const responseObj = queryResponse as JsonRecord;
+      const status = responseObj.status as string;
+      
+      console.log(`[Video Polling] Attempt ${attempt + 1}/${maxAttempts}, status: ${status}, response:`, JSON.stringify(responseObj, null, 2));
+      
+      if (status === "completed" || status === "succeeded") {
+        assetUrl = extractAssetUrl(queryResponse);
+        providerResponse = queryResponse;
+        console.log(`[Video Polling] Task completed, assetUrl: ${assetUrl}`);
+        break;
+      } else if (status === "failed" || status === "error") {
+        const errorMsg = responseObj.error || responseObj.message || JSON.stringify(queryResponse);
+        throw new Error(`Video generation failed: ${errorMsg}`);
+      }
+      // 继续轮询：queued, running, processing 等状态
+    }
+    
+    if (!assetUrl) {
+      throw new Error(`Video generation timeout: task ${upstreamTaskId} did not complete within ${maxAttempts * pollInterval / 1000}s`);
+    }
+  }
+  
   if (!assetUrl) {
     admitTask(upstreamTaskId, { vendor: vendorKey, request, raw: providerResponse, model, projectId, nodeId, wantedKind, fingerprint: fallbackFingerprint });
     return { id: upstreamTaskId, kind, status: "queued", assets: [], raw: providerResponse };

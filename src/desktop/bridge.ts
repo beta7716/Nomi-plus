@@ -205,6 +205,7 @@ export type DesktopBridge = {
       providerKind?: ProviderKind
       headers?: Record<string, string>
       models: Array<{ id: string; displayName?: string }>
+      modelKind?: 'text' | 'image' | 'video'
     }) => Promise<{
       ok: boolean
       vendorKey?: string

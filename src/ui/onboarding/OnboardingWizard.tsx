@@ -57,6 +57,8 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
   // breaks the bootstrap deadlock, works for local/text models); 'docs' is the
   // secondary path (AI reads docs) for image/video models with non-standard APIs.
   const [inputMode, setInputMode] = React.useState<'manual' | 'docs'>('manual')
+  // 模型类型选择：text/image/video。manual 模式下用户可以选择添加哪种类型的模型
+  const [modelKind, setModelKind] = React.useState<'text' | 'image' | 'video'>('text')
   // Whether the catalog already has a text model. Drives the adaptive default:
   // none → open on "add text model" (manual); has one → open on "add image/video"
   // (docs). Also gates the image/video entry, which needs a text model to read docs.
@@ -260,6 +262,7 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
         providerKind,
         headers: buildHeadersObject(),
         models: cleanModels,
+        modelKind, // 传递模型类型：text/image/video
       })
       if (res.ok) {
         const n = res.committed?.length ?? cleanModels.length
@@ -274,7 +277,7 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
     } finally {
       setSaving(false)
     }
-  }, [bridge, vendorName, baseUrl, userApiKey, models, providerKind, buildHeadersObject, onCommitted])
+  }, [bridge, vendorName, baseUrl, userApiKey, models, providerKind, buildHeadersObject, onCommitted, modelKind])
 
   // 输入或测试态一变 → 解除「仍要保存」二次确认（防 arm 后改了地址/Key 还沿用旧确认）。
   React.useEffect(() => {
@@ -406,23 +409,29 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
             <Group gap={10} align="center">
               <button
                 type="button"
-                onClick={() => setInputMode('manual')}
+                onClick={() => { setInputMode('manual'); setModelKind('text') }}
                 className={cn('text-body transition-colors duration-150',
-                  inputMode === 'manual' ? 'font-semibold text-nomi-ink' : 'text-nomi-ink-60 hover:text-nomi-ink')}
+                  inputMode === 'manual' && modelKind === 'text' ? 'font-semibold text-nomi-ink' : 'text-nomi-ink-60 hover:text-nomi-ink')}
               >
                 文本模型
               </button>
               <span className="text-nomi-ink-20">·</span>
               <button
                 type="button"
-                disabled={!hasTextModel}
-                onClick={() => { if (hasTextModel) setInputMode('docs') }}
-                title={hasTextModel ? undefined : '需先添加一个文本模型来读文档'}
+                onClick={() => { setInputMode('manual'); setModelKind('image') }}
                 className={cn('text-body transition-colors duration-150',
-                  !hasTextModel ? 'text-nomi-ink-40 cursor-not-allowed'
-                    : inputMode === 'docs' ? 'font-semibold text-nomi-ink' : 'text-nomi-ink-60 hover:text-nomi-ink')}
+                  inputMode === 'manual' && modelKind === 'image' ? 'font-semibold text-nomi-ink' : 'text-nomi-ink-60 hover:text-nomi-ink')}
               >
-                图片 / 视频模型
+                图片模型
+              </button>
+              <span className="text-nomi-ink-20">·</span>
+              <button
+                type="button"
+                onClick={() => { setInputMode('manual'); setModelKind('video') }}
+                className={cn('text-body transition-colors duration-150',
+                  inputMode === 'manual' && modelKind === 'video' ? 'font-semibold text-nomi-ink' : 'text-nomi-ink-60 hover:text-nomi-ink')}
+              >
+                视频模型
               </button>
             </Group>
 
@@ -640,36 +649,6 @@ export function OnboardingWizard({ opened, onClose, onCommitted }: {
                     : '保存'}
               </DesignButton>
             </Group>
-              </>
-            )}
-
-            {inputMode === 'docs' && (
-              <>
-            <Text size="xs" c="var(--nomi-ink-60)">
-              适合图片 / 视频等非标准接口：AI 读官方文档，自动抠出参数并配置。
-            </Text>
-            <Field label="文档地址" hint="粘贴这个模型的官方 API 文档页">
-              <DesignTextInput
-                value={docsUrl}
-                onChange={e => setDocsUrl(e.currentTarget.value)}
-                placeholder="https://docs.example.com/api/..."
-                autoFocus
-              />
-            </Field>
-            <Field label="你的 API Key" hint="只存在你的电脑上，加密保存">
-              <PasswordInput
-                value={userApiKey}
-                onChange={e => setUserApiKey(e.currentTarget.value)}
-                placeholder="sk-..."
-              />
-            </Field>
-            <Group justify="flex-end">
-              <DesignButton onClick={handleStart} disabled={!canStart}>
-                开始
-              </DesignButton>
-            </Group>
-              </>
-            )}
           </Stack>
         )}
 

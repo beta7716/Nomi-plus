@@ -211,10 +211,15 @@ export function commitManualOpenAiCompatibleModels(payload: {
   /** Extra request headers for relay/proxy gateways, persisted on the vendor and
    *  replayed on every model call via buildAiSdkModel. */
   headers?: Record<string, string>;
+  /** Model kind: text (default), image, or video. Determines billingKind and
+   *  targetKind for the committed models. Image/video models use the runtime
+   *  fallback path (OpenAI-compatible /v1/images/generations or /v1/videos/generations). */
+  modelKind?: "text" | "image" | "video";
 }): { vendorKey: string; committed: Array<{ modelKey: string; displayName: string }> } {
   const rawBaseUrl = String(payload?.baseUrl || "").trim();
   const apiKey = String(payload?.apiKey || "").trim();
   const providerKind = normalizeProviderKind(payload?.providerKind);
+  const modelKind = payload?.modelKind || "text";
   // Anthropic offers a hosted default; an OpenAI-compatible endpoint must be told.
   // For anthropic with a blank field we fill in the canonical host so the vendor
   // always has a concrete baseUrlHint (the doc-reader + commit path require one).
@@ -265,7 +270,7 @@ export function commitManualOpenAiCompatibleModels(payload: {
         ...(vendorMeta ? { vendorMeta } : {}),
         modelKey: m.id,
         modelDisplayName: displayName,
-        targetKind: "text" as const,
+        targetKind: modelKind,
         modelFields: [],
       },
     };

@@ -183,6 +183,8 @@ export function registerOnboardingIpc(): void {
           headers[String(k)] = String(v ?? "");
         }
       }
+      // 解析模型类型参数（text/image/video）
+      const modelKind = (payload?.modelKind as "text" | "image" | "video") || "text";
       const result = commitManualOpenAiCompatibleModels({
         vendorName: String(payload?.vendorName || ""),
         baseUrl: String(payload?.baseUrl || ""),
@@ -195,6 +197,7 @@ export function registerOnboardingIpc(): void {
               displayName: m?.displayName ? String(m.displayName) : undefined,
             }))
           : [],
+        modelKind, // 传递模型类型
       });
       return { ok: true, vendorKey: result.vendorKey, committed: result.committed };
     } catch (error) {
